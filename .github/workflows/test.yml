@@ -9,6 +9,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          components: llvm-tools-preview
 
       - run: cargo fmt --all -- --check
 
@@ -17,3 +18,18 @@ jobs:
       - run: cargo test
 
       - run: cargo build --release --all-features
+
+      - name: coverage
+        run: |
+          cargo install cargo-llvm-cov || true  # when already cached
+          cargo llvm-cov --lcov --output-path coverage.lcov
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.lcov
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true
