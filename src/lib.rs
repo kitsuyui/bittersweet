@@ -1,3 +1,5 @@
+pub mod bitline;
+
 #[cfg(test)]
 mod tests {
     #[test]
