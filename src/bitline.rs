@@ -248,21 +248,21 @@ fn test_by_range() {
 
 #[test]
 fn test_first_index() {
-    assert_eq!(0b01000000_u8.first_index().unwrap(), 1);
-    assert_eq!(0b00010000_u8.first_index().unwrap(), 3);
-    assert_eq!(0b00010100_u8.first_index().unwrap(), 3);
-    assert_eq!(0b00000100_u8.first_index().unwrap(), 5);
-    assert_eq!(0b00000001_u8.first_index().unwrap(), 7);
+    assert_eq!(0b01000000_u8.first_index(), Some(1));
+    assert_eq!(0b00010000_u8.first_index(), Some(3));
+    assert_eq!(0b00010100_u8.first_index(), Some(3));
+    assert_eq!(0b00000100_u8.first_index(), Some(5));
+    assert_eq!(0b00000001_u8.first_index(), Some(7));
     assert!(0b00000000_u8.first_index().is_none());
 }
 
 #[test]
 fn test_last_index() {
-    assert_eq!(0b01000000_u8.last_index().unwrap(), 1);
-    assert_eq!(0b00010000_u8.last_index().unwrap(), 3);
-    assert_eq!(0b00010100_u8.last_index().unwrap(), 5);
-    assert_eq!(0b00000100_u8.last_index().unwrap(), 5);
-    assert_eq!(0b00000001_u8.last_index().unwrap(), 7);
+    assert_eq!(0b01000000_u8.last_index(), Some(1));
+    assert_eq!(0b00010000_u8.last_index(), Some(3));
+    assert_eq!(0b00010100_u8.last_index(), Some(5));
+    assert_eq!(0b00000100_u8.last_index(), Some(5));
+    assert_eq!(0b00000001_u8.last_index(), Some(7));
     assert!(0b00000000_u8.last_index().is_none());
 }
 
