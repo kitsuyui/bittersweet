@@ -1,6 +1,6 @@
 [package]
 name = "bittersweet"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Yui Kitsu <kitsuyui+github@kitsuyui.com>"]
 description = "Add more intentional predicates to bitwise calcs."
 license = "BSD-3-Clause"
