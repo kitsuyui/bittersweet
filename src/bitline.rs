@@ -7,7 +7,7 @@ pub type Bitline64 = u64;
 pub type Bitline128 = u128;
 
 pub trait Bitline {
-    /// return the bits all set to 0
+    /// Return the bits all set to 0
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -15,7 +15,7 @@ pub trait Bitline {
     /// ```
     fn as_empty() -> Self;
 
-    /// return the bits all set to 1
+    /// Return the bits all set to 1
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -23,7 +23,7 @@ pub trait Bitline {
     /// ```
     fn as_full() -> Self;
 
-    /// return the bits standing in the given range.
+    /// Return the bits standing in the given range.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -31,7 +31,7 @@ pub trait Bitline {
     /// ```
     fn by_range(begin: usize, end: usize) -> Self;
 
-    /// return true if the bit is filled with zero.
+    /// Return true if the bit is filled with zero.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -40,7 +40,7 @@ pub trait Bitline {
     /// ```
     fn is_empty(&self) -> bool;
 
-    /// return true if the bit is not filled with zero.
+    /// Return true if the bit is not filled with zero.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -49,7 +49,7 @@ pub trait Bitline {
     /// ```
     fn is_not_empty(&self) -> bool;
 
-    /// return true if the bit is filled with one.
+    /// Return true if the bit is filled with one.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -58,7 +58,7 @@ pub trait Bitline {
     /// ```
     fn is_full(&self) -> bool;
 
-    /// return true if the bit is not filled with one.
+    /// Return true if the bit is not filled with one.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -67,7 +67,7 @@ pub trait Bitline {
     /// ```
     fn is_not_full(&self) -> bool;
 
-    /// return the first bit index that is set to one.
+    /// Return the first bit index that is set to one.
     /// If there is no bit set to one, return None.
     /// # Examples
     /// ```
@@ -77,7 +77,7 @@ pub trait Bitline {
     /// ```
 
     fn first_index(&self) -> Option<usize>;
-    /// return the last bit index that is set to one.
+    /// Return the last bit index that is set to one.
     /// If there is no bit set to one, return None.
     /// # Examples
     /// ```
@@ -87,7 +87,7 @@ pub trait Bitline {
     /// ```
     fn last_index(&self) -> Option<usize>;
 
-    /// return the bits standing in n distance from the original starting bit.
+    /// Return the bits standing in n distance from the original starting bit.
     /// If there is no bit set to one, return None.
     /// # Examples
     /// ```
@@ -109,7 +109,7 @@ pub trait Bitline {
     /// ```
     fn radius(&self, n: usize) -> Self;
 
-    /// return all bits standing between n distance from the standing bits (without original standing bits).
+    /// Return all bits standing between n distance from the standing bits (without original standing bits).
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -125,7 +125,7 @@ pub trait Bitline {
     /// ```
     fn around(&self, n: usize) -> Self;
 
-    /// return all bits standing between n distance from the standing bits (with original standing bits).
+    /// Return all bits standing between n distance from the standing bits (with original standing bits).
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -141,7 +141,7 @@ pub trait Bitline {
     /// ```
     fn with_around(&self, n: usize) -> Self;
 
-    /// return the first bit from the most significant bit. (last bit from the least significant bit)
+    /// Return the first bit from the most significant bit. (last bit from the least significant bit)
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -152,7 +152,7 @@ pub trait Bitline {
     /// ```
     fn first_bit(&self) -> Self;
 
-    /// return the last bit from the most significant bit. (first bit from the least significant bit)
+    /// Return the last bit from the most significant bit. (first bit from the least significant bit)
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -163,7 +163,7 @@ pub trait Bitline {
     /// ```
     fn last_bit(&self) -> Self;
 
-    /// return the first bits of each consecutive bits.
+    /// Return the first bits of each consecutive bits.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -174,7 +174,7 @@ pub trait Bitline {
     /// ```
     fn first_bits(&self) -> Self;
 
-    /// return the last bits of each consecutive bits.
+    /// Return the last bits of each consecutive bits.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -196,7 +196,7 @@ pub trait Bitline {
     /// ```
     fn filled_first_bit_to_last_bit(&self) -> Self;
 
-    /// return the bytes size of the bitline.
+    /// Return the bytes size of the bitline.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8, Bitline16, Bitline32, Bitline64};
@@ -207,7 +207,7 @@ pub trait Bitline {
     /// ```
     fn bytes_length() -> usize;
 
-    /// return the bits size of the bitline.
+    /// Return the bits size of the bitline.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8, Bitline16, Bitline32, Bitline64};
@@ -218,7 +218,7 @@ pub trait Bitline {
     /// ```
     fn length() -> usize;
 
-    /// return the bits standing in the given range.
+    /// Return the bits standing in the given range. (bit count)
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -229,7 +229,7 @@ pub trait Bitline {
     /// ```
     fn num_bits(&self) -> usize;
 
-    /// return true if every bits are standing in the given standing bits.
+    /// Return true if every bits are standing in the given standing bits.
     /// empty bitlines are always included. (like a empty set in a set)
     /// # Examples
     /// ```
@@ -245,7 +245,7 @@ pub trait Bitline {
     /// ```
     fn includes(&self, other: Self) -> bool;
 
-    /// return true if some bits are standing in the given standing bits.
+    /// Return true if some bits are standing in the given standing bits.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -256,7 +256,7 @@ pub trait Bitline {
     /// ```
     fn overlaps(&self, other: Self) -> bool;
 
-    /// return the standing bits by the given range.
+    /// Return the standing bits by the given range.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -266,7 +266,7 @@ pub trait Bitline {
     /// ```
     fn range(&self, begin: usize, end: usize) -> Self;
 
-    /// return the standing bits not included by the given range.
+    /// Return the standing bits not included by the given range.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -276,7 +276,7 @@ pub trait Bitline {
     /// ```
     fn remove(&self, other: Self) -> Self;
 
-    /// return the string representation of the bitline.
+    /// Return the string representation of the bitline.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
