@@ -185,8 +185,16 @@ pub trait Bitline {
     /// ```
     fn last_bits(&self) -> Self;
 
-    /// return the first and last bit of each consecutive bits.
-    fn first_and_last(&self) -> Self;
+    /// Return the bits filled from the first bit to the last bit.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b01000100_u8;
+    /// assert_eq!(bitline.filled_first_bit_to_last_bit(), 0b01111100_u8);
+    /// let bitline = 0b00000000_u8;
+    /// assert_eq!(bitline.filled_first_bit_to_last_bit(), 0b00000000_u8);
+    /// ```
+    fn filled_first_bit_to_last_bit(&self) -> Self;
 
     /// return the bytes size of the bitline.
     /// # Examples
@@ -377,7 +385,7 @@ macro_rules! impl_Bitline {
                 self & !(self << 1)
             }
             #[inline]
-            fn first_and_last(&self) -> Self {
+            fn filled_first_bit_to_last_bit(&self) -> Self {
                 if (self.is_empty()) {
                     return Self::as_empty();
                 }
@@ -546,13 +554,13 @@ fn test_last_bits() {
 }
 
 #[test]
-fn test_first_and_last() {
-    assert_eq!(0b01000000_u8.first_and_last(), 0b01000000_u8);
-    assert_eq!(0b00010000_u8.first_and_last(), 0b00010000_u8);
-    assert_eq!(0b00010100_u8.first_and_last(), 0b00011100_u8);
-    assert_eq!(0b00000100_u8.first_and_last(), 0b00000100_u8);
-    assert_eq!(0b00000001_u8.first_and_last(), 0b00000001_u8);
-    assert_eq!(0b00000000_u8.first_and_last(), 0b00000000_u8);
+fn test_filled_first_bit_to_last_bit() {
+    assert_eq!(0b01000000_u8.filled_first_bit_to_last_bit(), 0b01000000_u8);
+    assert_eq!(0b00010000_u8.filled_first_bit_to_last_bit(), 0b00010000_u8);
+    assert_eq!(0b00010100_u8.filled_first_bit_to_last_bit(), 0b00011100_u8);
+    assert_eq!(0b00000100_u8.filled_first_bit_to_last_bit(), 0b00000100_u8);
+    assert_eq!(0b00000001_u8.filled_first_bit_to_last_bit(), 0b00000001_u8);
+    assert_eq!(0b00000000_u8.filled_first_bit_to_last_bit(), 0b00000000_u8);
 }
 
 #[test]
