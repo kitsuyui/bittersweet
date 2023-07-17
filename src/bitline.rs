@@ -7,28 +7,27 @@ pub type Bitline64 = u64;
 pub type Bitline128 = u128;
 
 pub trait Bitline {
-    /// return the bits all set to 1
-    /// # Examples
-    /// ```
-    /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = Bitline8::as_empty();
-    /// assert_eq!(bitline, 0);
-    /// ```
-    fn as_empty() -> Self;
     /// return the bits all set to 0
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = Bitline8::as_full();
-    /// assert_eq!(bitline, 255);
+    /// assert_eq!(Bitline8::as_empty(), 0b00000000);
+    /// ```
+    fn as_empty() -> Self;
+
+    /// return the bits all set to 1
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// assert_eq!(Bitline8::as_full(), 0b11111111);
     /// ```
     fn as_full() -> Self;
+
     /// return the bits standing in the given range.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = Bitline8::by_range(2, 5);
-    /// assert_eq!(bitline, 0b00111000_u8);
+    /// assert_eq!(Bitline8::by_range(2, 5), 0b00111000_u8);
     /// ```
     fn by_range(begin: usize, end: usize) -> Self;
 
@@ -36,61 +35,77 @@ pub trait Bitline {
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = 0b00111000_u8;
-    /// assert_eq!(bitline.is_empty(), false);
-    /// let bitline = 0 as Bitline8;
-    /// assert_eq!(bitline.is_empty(), true);
+    /// assert!(!0b00111000_u8.is_empty());
+    /// assert!(0b00000000_u8.is_empty());
     /// ```
     fn is_empty(&self) -> bool;
+
     /// return true if the bit is not filled with zero.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = 0 as Bitline8;
-    /// assert_eq!(bitline.is_not_empty(), false);
+    /// assert!(0b00111000_u8.is_not_empty());
+    /// assert!(!0b00000000_u8.is_not_empty());
     /// ```
     fn is_not_empty(&self) -> bool;
+
     /// return true if the bit is filled with one.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = 0b11111111 as Bitline8;
-    /// assert_eq!(bitline.is_full(), true);
+    /// assert!((0b11111111 as Bitline8).is_full());
+    /// assert!(!(0b01111111 as Bitline8).is_full());
     /// ```
     fn is_full(&self) -> bool;
+
     /// return true if the bit is not filled with one.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = 255 as Bitline8;
-    /// assert_eq!(bitline.is_not_full(), false);
-    /// let bitline = 0 as Bitline8;
-    /// assert_eq!(bitline.is_not_full(), true);
+    /// assert!((0b01111111 as Bitline8).is_not_full());
+    /// assert!(!(0b11111111 as Bitline8).is_not_full());
     /// ```
     fn is_not_full(&self) -> bool;
 
     /// return the first bit index that is set to one.
+    /// If there is no bit set to one, return None.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = 0b00111000 as Bitline8;
-    /// assert_eq!(bitline.first_index(), Some(2));
+    /// assert_eq!((0b00111000 as Bitline8).first_index(), Some(2));
+    /// assert_eq!((0b00000000 as Bitline8).first_index(), None);
+    /// ```
+
     fn first_index(&self) -> Option<usize>;
     /// return the last bit index that is set to one.
+    /// If there is no bit set to one, return None.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
-    /// let bitline = 0b00111000 as Bitline8;
-    /// assert_eq!(bitline.last_index(), Some(4));
+    /// assert_eq!((0b00111000 as Bitline8).last_index(), Some(4));
+    /// assert_eq!((0b00000000 as Bitline8).last_index(), None);
+    /// ```
     fn last_index(&self) -> Option<usize>;
 
     /// return the bits standing in n distance from the original starting bit.
+    /// If there is no bit set to one, return None.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00001000 as Bitline8;
+    /// assert_eq!(bitline.radius(0), 0b00000000);
     /// assert_eq!(bitline.radius(1), 0b00010100);
     /// assert_eq!(bitline.radius(2), 0b00100010);
+    ///
+    /// let bitline = 0b00000000 as Bitline8;
+    /// assert_eq!(bitline.radius(0), 0b00000000);
+    /// assert_eq!(bitline.radius(1), 0b00000000);
+    /// assert_eq!(bitline.radius(2), 0b00000000);
+    ///
+    /// let bitline = 0b00100100 as Bitline8;
+    /// assert_eq!(bitline.radius(0), 0b00000000);
+    /// assert_eq!(bitline.radius(1), 0b01011010);
+    /// assert_eq!(bitline.radius(2), 0b10011001);
     /// ```
     fn radius(&self, n: usize) -> Self;
 
@@ -99,17 +114,31 @@ pub trait Bitline {
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00001000 as Bitline8;
+    /// assert_eq!(bitline.around(0), 0b00000000);
     /// assert_eq!(bitline.around(1), 0b00010100);
     /// assert_eq!(bitline.around(2), 0b00110110);
+    ///
+    /// let bitline = 0b00000000 as Bitline8;
+    /// assert_eq!(bitline.around(0), 0b00000000);
+    /// assert_eq!(bitline.around(1), 0b00000000);
+    /// assert_eq!(bitline.around(2), 0b00000000);
     /// ```
     fn around(&self, n: usize) -> Self;
+
     /// return all bits standing between n distance from the standing bits (with original standing bits).
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00001000 as Bitline8;
+    /// assert_eq!(bitline.with_around(0), 0b00001000);
     /// assert_eq!(bitline.with_around(1), 0b00011100);
     /// assert_eq!(bitline.with_around(2), 0b00111110);
+    ///
+    /// let bitline = 0b00000000 as Bitline8;
+    /// assert_eq!(bitline.with_around(0), 0b00000000);
+    /// assert_eq!(bitline.with_around(1), 0b00000000);
+    /// assert_eq!(bitline.with_around(2), 0b00000000);
+    /// ```
     fn with_around(&self, n: usize) -> Self;
 
     /// return the first bit from the most significant bit. (last bit from the least significant bit)
@@ -122,6 +151,7 @@ pub trait Bitline {
     /// assert_eq!(bitline.first_bit(), 0b00000000_u8);
     /// ```
     fn first_bit(&self) -> Self;
+
     /// return the last bit from the most significant bit. (first bit from the least significant bit)
     /// # Examples
     /// ```
@@ -132,7 +162,8 @@ pub trait Bitline {
     /// assert_eq!(bitline.last_bit(), 0b00000000_u8);
     /// ```
     fn last_bit(&self) -> Self;
-    /// return the first bit of each consecutive bits.
+
+    /// return the first bits of each consecutive bits.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -142,7 +173,8 @@ pub trait Bitline {
     /// assert_eq!(bitline.first_bits(), 0b00000000_u8);
     /// ```
     fn first_bits(&self) -> Self;
-    /// return the last bit of each consecutive bits.
+
+    /// return the last bits of each consecutive bits.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -166,6 +198,7 @@ pub trait Bitline {
     /// assert_eq!(Bitline64::bytes_length(), 8);
     /// ```
     fn bytes_length() -> usize;
+
     /// return the bits size of the bitline.
     /// # Examples
     /// ```
@@ -183,27 +216,38 @@ pub trait Bitline {
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b01101100_u8;
     /// assert_eq!(bitline.num_bits(), 4);
+    /// let bitline = 0b00000000_u8;
+    /// assert_eq!(bitline.num_bits(), 0);
     /// ```
     fn num_bits(&self) -> usize;
 
     /// return true if every bits are standing in the given standing bits.
+    /// empty bitlines are always included. (like a empty set in a set)
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b01101100_u8;
-    /// assert_eq!(bitline.includes(0b01100000_u8), true);
-    /// assert_eq!(bitline.includes(0b01100001_u8), false);
+    /// assert!(bitline.includes(0b01100000_u8));
+    /// assert!(!bitline.includes(0b01100001_u8));
+    /// assert!(bitline.includes(0b00000000_u8));
+    ///
+    /// let bitline = 0b00000000_u8;
+    /// assert!(bitline.includes(0b00000000_u8));
+    /// assert!(!bitline.includes(0b00000001_u8));
     /// ```
     fn includes(&self, other: Self) -> bool;
+
     /// return true if some bits are standing in the given standing bits.
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b01101100_u8;
-    /// assert_eq!(bitline.overlaps(0b01100000_u8), true);
-    /// assert_eq!(bitline.overlaps(0b00000001_u8), false);
+    /// assert!(bitline.overlaps(0b01100000_u8));
+    /// assert!(!bitline.overlaps(0b00000001_u8));
+    /// assert!(!bitline.overlaps(0b00000000_u8));
     /// ```
     fn overlaps(&self, other: Self) -> bool;
+
     /// return the standing bits by the given range.
     /// # Examples
     /// ```
@@ -211,7 +255,9 @@ pub trait Bitline {
     /// let bitline = 0b01101100_u8;
     /// assert_eq!(bitline.range(0, 4), 0b01100000_u8);
     /// assert_eq!(bitline.range(4, 8), 0b00001100_u8);
+    /// ```
     fn range(&self, begin: usize, end: usize) -> Self;
+
     /// return the standing bits not included by the given range.
     /// # Examples
     /// ```
