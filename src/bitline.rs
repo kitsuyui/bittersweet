@@ -294,7 +294,7 @@ macro_rules! impl_Bitline {
             }
             #[inline]
             fn as_full() -> Self {
-                Self::max_value()
+                Self::MAX
             }
             #[inline]
             fn by_range(begin: usize, end: usize) -> Self {
