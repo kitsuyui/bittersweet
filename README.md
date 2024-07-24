@@ -82,8 +82,11 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 - `range`
 - `includes`
 - `overlaps`
-- `range`
 - `remove`
+- `left_rotate`
+- `right_rotate`
+- `bin_to_gray_code`
+- `gray_code_to_bin`
 
 ## License
 

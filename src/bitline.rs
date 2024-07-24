@@ -306,6 +306,24 @@ pub trait Bitline {
     /// assert_eq!(bitline.right_rotate(3), 0b10001101_u8);
     /// ```
     fn right_rotate(&self, n: usize) -> Self;
+
+    /// Return the Gray code of the bitline.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00000010_u8;
+    /// assert_eq!(bitline.bin_to_gray_code(), 0b00000011_u8);
+    /// ```
+    fn bin_to_gray_code(&self) -> Self;
+
+    /// Return the bitline from the Gray code.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00000011_u8;
+    /// assert_eq!(bitline.gray_code_to_bin(), 0b00000010_u8);
+    /// ```
+    fn gray_code_to_bin(&self) -> Self;
 }
 
 macro_rules! impl_Bitline {
@@ -466,6 +484,24 @@ macro_rules! impl_Bitline {
                 }
                 (self >> n) | (self << (Self::length() - n))
             }
+            #[inline]
+            fn bin_to_gray_code(&self) -> Self {
+                *self ^ (*self >> 1)
+            }
+            #[inline]
+            fn gray_code_to_bin(&self) -> Self {
+                let g = *self;
+                let mut n = g;
+                let mut shift = 1;
+                while (g >> shift > 0) {
+                    n ^= g >> shift;
+                    shift += 1;
+                    if (shift >= Self::length()) {
+                        break;
+                    }
+                }
+                n
+            }
         }
     };
 }
@@ -476,260 +512,340 @@ impl_Bitline!(Bitline32);
 impl_Bitline!(Bitline64);
 impl_Bitline!(Bitline128);
 
-#[test]
-fn test_as_empty() {
-    assert_eq!(u8::as_empty().bit_repr(), "0".repeat(8));
-    assert_eq!(u16::as_empty().bit_repr(), "0".repeat(16));
-    assert_eq!(u32::as_empty().bit_repr(), "0".repeat(32));
-    assert_eq!(u64::as_empty().bit_repr(), "0".repeat(64));
-    assert_eq!(u128::as_empty().bit_repr(), "0".repeat(128));
-}
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
 
-#[test]
-fn test_as_full() {
-    assert_eq!(u8::as_full().bit_repr(), "1".repeat(8));
-    assert_eq!(u16::as_full().bit_repr(), "1".repeat(16));
-    assert_eq!(u32::as_full().bit_repr(), "1".repeat(32));
-    assert_eq!(u64::as_full().bit_repr(), "1".repeat(64));
-    assert_eq!(u128::as_full().bit_repr(), "1".repeat(128));
-}
+    use super::*;
 
-#[test]
-fn test_by_range() {
-    assert_eq!(u8::by_range(3, 4), 0b00010000);
-    assert_eq!(u8::by_range(0, 8), 0b11111111);
-    assert_eq!(u8::by_range(0, 0), 0b00000000);
-}
+    #[test]
+    fn test_as_empty() {
+        assert_eq!(u8::as_empty().bit_repr(), "0".repeat(8));
+        assert_eq!(u16::as_empty().bit_repr(), "0".repeat(16));
+        assert_eq!(u32::as_empty().bit_repr(), "0".repeat(32));
+        assert_eq!(u64::as_empty().bit_repr(), "0".repeat(64));
+        assert_eq!(u128::as_empty().bit_repr(), "0".repeat(128));
+    }
 
-#[test]
-fn test_first_index() {
-    assert_eq!(0b01000000_u8.first_index(), Some(1));
-    assert_eq!(0b00010000_u8.first_index(), Some(3));
-    assert_eq!(0b00010100_u8.first_index(), Some(3));
-    assert_eq!(0b00000100_u8.first_index(), Some(5));
-    assert_eq!(0b00000001_u8.first_index(), Some(7));
-    assert!(0b00000000_u8.first_index().is_none());
-}
+    #[test]
+    fn test_as_full() {
+        assert_eq!(u8::as_full().bit_repr(), "1".repeat(8));
+        assert_eq!(u16::as_full().bit_repr(), "1".repeat(16));
+        assert_eq!(u32::as_full().bit_repr(), "1".repeat(32));
+        assert_eq!(u64::as_full().bit_repr(), "1".repeat(64));
+        assert_eq!(u128::as_full().bit_repr(), "1".repeat(128));
+    }
 
-#[test]
-fn test_last_index() {
-    assert_eq!(0b01000000_u8.last_index(), Some(1));
-    assert_eq!(0b00010000_u8.last_index(), Some(3));
-    assert_eq!(0b00010100_u8.last_index(), Some(5));
-    assert_eq!(0b00000100_u8.last_index(), Some(5));
-    assert_eq!(0b00000001_u8.last_index(), Some(7));
-    assert!(0b00000000_u8.last_index().is_none());
-}
+    #[test]
+    fn test_by_range() {
+        assert_eq!(u8::by_range(3, 4), 0b00010000);
+        assert_eq!(u8::by_range(0, 8), 0b11111111);
+        assert_eq!(u8::by_range(0, 0), 0b00000000);
+    }
 
-#[test]
-fn test_radius() {
-    assert_eq!(0b00010000_u8.radius(0), 0b00000000_u8);
-    assert_eq!(0b00010000_u8.radius(1), 0b00101000_u8);
-    assert_eq!(0b00010000_u8.radius(2), 0b01000100_u8);
-    assert_eq!(0b00010000_u8.radius(3), 0b10000010_u8);
-    assert_eq!(0b00010000_u8.radius(4), 0b00000001_u8);
-    assert_eq!(0b00000000_u8.radius(0), 0b00000000_u8);
-    assert_eq!(0b00000000_u8.radius(1), 0b00000000_u8);
-    assert_eq!(0b00000000_u8.radius(2), 0b00000000_u8);
-}
+    #[test]
+    fn test_first_index() {
+        assert_eq!(0b01000000_u8.first_index(), Some(1));
+        assert_eq!(0b00010000_u8.first_index(), Some(3));
+        assert_eq!(0b00010100_u8.first_index(), Some(3));
+        assert_eq!(0b00000100_u8.first_index(), Some(5));
+        assert_eq!(0b00000001_u8.first_index(), Some(7));
+        assert!(0b00000000_u8.first_index().is_none());
+    }
 
-#[test]
-fn test_around() {
-    assert_eq!(0b00010000_u8.around(0), 0b00000000_u8);
-    assert_eq!(0b00010000_u8.around(1), 0b00101000_u8);
-    assert_eq!(0b00010000_u8.around(2), 0b01101100_u8);
-    assert_eq!(0b00010000_u8.around(3), 0b11101110_u8);
-    assert_eq!(0b00010000_u8.around(4), 0b11101111_u8);
-    assert_eq!(0b00000000_u8.around(0), 0b00000000_u8);
-    assert_eq!(0b00000000_u8.around(1), 0b00000000_u8);
-    assert_eq!(0b00000000_u8.around(2), 0b00000000_u8);
-}
+    #[test]
+    fn test_last_index() {
+        assert_eq!(0b01000000_u8.last_index(), Some(1));
+        assert_eq!(0b00010000_u8.last_index(), Some(3));
+        assert_eq!(0b00010100_u8.last_index(), Some(5));
+        assert_eq!(0b00000100_u8.last_index(), Some(5));
+        assert_eq!(0b00000001_u8.last_index(), Some(7));
+        assert!(0b00000000_u8.last_index().is_none());
+    }
 
-#[test]
-fn test_with_around() {
-    assert_eq!(0b00010000_u8.with_around(0), 0b00010000_u8);
-    assert_eq!(0b00010000_u8.with_around(1), 0b00111000_u8);
-    assert_eq!(0b00010000_u8.with_around(2), 0b01111100_u8);
-    assert_eq!(0b00010000_u8.with_around(3), 0b11111110_u8);
-    assert_eq!(0b00010000_u8.with_around(4), 0b11111111_u8);
-    assert_eq!(0b00000000_u8.with_around(0), 0b00000000_u8);
-    assert_eq!(0b00000000_u8.with_around(1), 0b00000000_u8);
-    assert_eq!(0b00000000_u8.with_around(2), 0b00000000_u8);
-}
+    #[test]
+    fn test_radius() {
+        assert_eq!(0b00010000_u8.radius(0), 0b00000000_u8);
+        assert_eq!(0b00010000_u8.radius(1), 0b00101000_u8);
+        assert_eq!(0b00010000_u8.radius(2), 0b01000100_u8);
+        assert_eq!(0b00010000_u8.radius(3), 0b10000010_u8);
+        assert_eq!(0b00010000_u8.radius(4), 0b00000001_u8);
+        assert_eq!(0b00000000_u8.radius(0), 0b00000000_u8);
+        assert_eq!(0b00000000_u8.radius(1), 0b00000000_u8);
+        assert_eq!(0b00000000_u8.radius(2), 0b00000000_u8);
+    }
 
-#[test]
-fn test_first_bit() {
-    assert_eq!(0b01000000_u8.first_bit(), 0b01000000_u8);
-    assert_eq!(0b00010000_u8.first_bit(), 0b00010000_u8);
-    assert_eq!(0b00010100_u8.first_bit(), 0b00010000_u8);
-    assert_eq!(0b00000100_u8.first_bit(), 0b00000100_u8);
-    assert_eq!(0b00000001_u8.first_bit(), 0b00000001_u8);
-    assert_eq!(0b00000000_u8.first_bit(), 0b00000000_u8);
-}
+    #[test]
+    fn test_around() {
+        assert_eq!(0b00010000_u8.around(0), 0b00000000_u8);
+        assert_eq!(0b00010000_u8.around(1), 0b00101000_u8);
+        assert_eq!(0b00010000_u8.around(2), 0b01101100_u8);
+        assert_eq!(0b00010000_u8.around(3), 0b11101110_u8);
+        assert_eq!(0b00010000_u8.around(4), 0b11101111_u8);
+        assert_eq!(0b00000000_u8.around(0), 0b00000000_u8);
+        assert_eq!(0b00000000_u8.around(1), 0b00000000_u8);
+        assert_eq!(0b00000000_u8.around(2), 0b00000000_u8);
+    }
 
-#[test]
-fn test_last_bit() {
-    assert_eq!(0b01000000_u8.last_bit(), 0b01000000_u8);
-    assert_eq!(0b00010000_u8.last_bit(), 0b00010000_u8);
-    assert_eq!(0b00010100_u8.last_bit(), 0b00000100_u8);
-    assert_eq!(0b00000100_u8.last_bit(), 0b00000100_u8);
-    assert_eq!(0b00000001_u8.last_bit(), 0b00000001_u8);
-    assert_eq!(0b00000000_u8.last_bit(), 0b00000000_u8);
-}
+    #[test]
+    fn test_with_around() {
+        assert_eq!(0b00010000_u8.with_around(0), 0b00010000_u8);
+        assert_eq!(0b00010000_u8.with_around(1), 0b00111000_u8);
+        assert_eq!(0b00010000_u8.with_around(2), 0b01111100_u8);
+        assert_eq!(0b00010000_u8.with_around(3), 0b11111110_u8);
+        assert_eq!(0b00010000_u8.with_around(4), 0b11111111_u8);
+        assert_eq!(0b00000000_u8.with_around(0), 0b00000000_u8);
+        assert_eq!(0b00000000_u8.with_around(1), 0b00000000_u8);
+        assert_eq!(0b00000000_u8.with_around(2), 0b00000000_u8);
+    }
 
-#[test]
-fn test_first_bits() {
-    assert_eq!(0b11111111_u8.first_bits(), 0b10000000_u8);
-    assert_eq!(0b01000000_u8.first_bits(), 0b01000000_u8);
-    assert_eq!(0b01100110_u8.first_bits(), 0b01000100_u8);
-}
+    #[test]
+    fn test_first_bit() {
+        assert_eq!(0b01000000_u8.first_bit(), 0b01000000_u8);
+        assert_eq!(0b00010000_u8.first_bit(), 0b00010000_u8);
+        assert_eq!(0b00010100_u8.first_bit(), 0b00010000_u8);
+        assert_eq!(0b00000100_u8.first_bit(), 0b00000100_u8);
+        assert_eq!(0b00000001_u8.first_bit(), 0b00000001_u8);
+        assert_eq!(0b00000000_u8.first_bit(), 0b00000000_u8);
+    }
 
-#[test]
-fn test_last_bits() {
-    assert_eq!(0b11111111_u8.last_bits(), 0b00000001_u8);
-    assert_eq!(0b01000000_u8.last_bits(), 0b01000000_u8);
-    assert_eq!(0b01100110_u8.last_bits(), 0b00100010_u8);
-}
+    #[test]
+    fn test_last_bit() {
+        assert_eq!(0b01000000_u8.last_bit(), 0b01000000_u8);
+        assert_eq!(0b00010000_u8.last_bit(), 0b00010000_u8);
+        assert_eq!(0b00010100_u8.last_bit(), 0b00000100_u8);
+        assert_eq!(0b00000100_u8.last_bit(), 0b00000100_u8);
+        assert_eq!(0b00000001_u8.last_bit(), 0b00000001_u8);
+        assert_eq!(0b00000000_u8.last_bit(), 0b00000000_u8);
+    }
 
-#[test]
-fn test_filled_first_bit_to_last_bit() {
-    assert_eq!(0b01000000_u8.filled_first_bit_to_last_bit(), 0b01000000_u8);
-    assert_eq!(0b00010000_u8.filled_first_bit_to_last_bit(), 0b00010000_u8);
-    assert_eq!(0b00010100_u8.filled_first_bit_to_last_bit(), 0b00011100_u8);
-    assert_eq!(0b00000100_u8.filled_first_bit_to_last_bit(), 0b00000100_u8);
-    assert_eq!(0b00000001_u8.filled_first_bit_to_last_bit(), 0b00000001_u8);
-    assert_eq!(0b00000000_u8.filled_first_bit_to_last_bit(), 0b00000000_u8);
-}
+    #[test]
+    fn test_first_bits() {
+        assert_eq!(0b11111111_u8.first_bits(), 0b10000000_u8);
+        assert_eq!(0b01000000_u8.first_bits(), 0b01000000_u8);
+        assert_eq!(0b01100110_u8.first_bits(), 0b01000100_u8);
+    }
 
-#[test]
-fn test_length() {
-    assert_eq!(u8::length(), 8);
-    assert_eq!(u16::length(), 16);
-    assert_eq!(u32::length(), 32);
-    assert_eq!(u64::length(), 64);
-    assert_eq!(u128::length(), 128);
-}
+    #[test]
+    fn test_last_bits() {
+        assert_eq!(0b11111111_u8.last_bits(), 0b00000001_u8);
+        assert_eq!(0b01000000_u8.last_bits(), 0b01000000_u8);
+        assert_eq!(0b01100110_u8.last_bits(), 0b00100010_u8);
+    }
 
-#[test]
-fn test_bytes_length() {
-    assert_eq!(u8::bytes_length(), 1);
-    assert_eq!(u16::bytes_length(), 2);
-    assert_eq!(u32::bytes_length(), 4);
-    assert_eq!(u64::bytes_length(), 8);
-    assert_eq!(u128::bytes_length(), 16);
-}
+    #[test]
+    fn test_filled_first_bit_to_last_bit() {
+        assert_eq!(0b01000000_u8.filled_first_bit_to_last_bit(), 0b01000000_u8);
+        assert_eq!(0b00010000_u8.filled_first_bit_to_last_bit(), 0b00010000_u8);
+        assert_eq!(0b00010100_u8.filled_first_bit_to_last_bit(), 0b00011100_u8);
+        assert_eq!(0b00000100_u8.filled_first_bit_to_last_bit(), 0b00000100_u8);
+        assert_eq!(0b00000001_u8.filled_first_bit_to_last_bit(), 0b00000001_u8);
+        assert_eq!(0b00000000_u8.filled_first_bit_to_last_bit(), 0b00000000_u8);
+    }
 
-#[test]
-fn test_is_empty() {
-    assert!(u8::as_empty().is_empty());
-    assert!(u16::as_empty().is_empty());
-    assert!(u32::as_empty().is_empty());
-    assert!(u64::as_empty().is_empty());
-    assert!(u128::as_empty().is_empty());
-    assert!(0b00000000_u8.is_empty());
-    assert!(!0b00000001_u8.is_empty());
-    assert!(!0b10000000_u8.is_empty());
-    assert!(!0b00001000_u8.is_empty());
-    assert!(!0b00000000_u8.is_not_empty());
-    assert!(0b00000001_u8.is_not_empty());
-    assert!(0b10000000_u8.is_not_empty());
-    assert!(0b00001000_u8.is_not_empty());
-}
+    #[test]
+    fn test_length() {
+        assert_eq!(u8::length(), 8);
+        assert_eq!(u16::length(), 16);
+        assert_eq!(u32::length(), 32);
+        assert_eq!(u64::length(), 64);
+        assert_eq!(u128::length(), 128);
+    }
 
-#[test]
-fn test_is_full() {
-    assert!(u8::as_full().is_full());
-    assert!(u16::as_full().is_full());
-    assert!(u32::as_full().is_full());
-    assert!(u64::as_full().is_full());
-    assert!(u128::as_full().is_full());
-    assert!(0b11111111_u8.is_full());
-    assert!(!0b11111110_u8.is_full());
-    assert!(!0b01111111_u8.is_full());
-    assert!(!0b11101111_u8.is_full());
-    assert!(!0b11111111_u8.is_not_full());
-    assert!(0b11111110_u8.is_not_full());
-    assert!(0b01111111_u8.is_not_full());
-    assert!(0b11101111_u8.is_not_full());
-}
+    #[test]
+    fn test_bytes_length() {
+        assert_eq!(u8::bytes_length(), 1);
+        assert_eq!(u16::bytes_length(), 2);
+        assert_eq!(u32::bytes_length(), 4);
+        assert_eq!(u64::bytes_length(), 8);
+        assert_eq!(u128::bytes_length(), 16);
+    }
 
-#[test]
-fn test_num_bits() {
-    assert_eq!(0b00000000_u8.num_bits(), 0);
-    assert_eq!(0b00001000_u8.num_bits(), 1);
-    assert_eq!(0b01001000_u8.num_bits(), 2);
-    assert_eq!(0b01101000_u8.num_bits(), 3);
-    assert_eq!(0b11111111_u8.num_bits(), 8);
-}
+    #[test]
+    fn test_is_empty() {
+        assert!(u8::as_empty().is_empty());
+        assert!(u16::as_empty().is_empty());
+        assert!(u32::as_empty().is_empty());
+        assert!(u64::as_empty().is_empty());
+        assert!(u128::as_empty().is_empty());
+        assert!(0b00000000_u8.is_empty());
+        assert!(!0b00000001_u8.is_empty());
+        assert!(!0b10000000_u8.is_empty());
+        assert!(!0b00001000_u8.is_empty());
+        assert!(!0b00000000_u8.is_not_empty());
+        assert!(0b00000001_u8.is_not_empty());
+        assert!(0b10000000_u8.is_not_empty());
+        assert!(0b00001000_u8.is_not_empty());
+    }
 
-#[test]
-fn test_includes() {
-    assert!(0b00000000_u8.includes(0b00000000_u8));
-    assert!(0b00011110_u8.includes(0b00000110_u8));
-}
+    #[test]
+    fn test_is_full() {
+        assert!(u8::as_full().is_full());
+        assert!(u16::as_full().is_full());
+        assert!(u32::as_full().is_full());
+        assert!(u64::as_full().is_full());
+        assert!(u128::as_full().is_full());
+        assert!(0b11111111_u8.is_full());
+        assert!(!0b11111110_u8.is_full());
+        assert!(!0b01111111_u8.is_full());
+        assert!(!0b11101111_u8.is_full());
+        assert!(!0b11111111_u8.is_not_full());
+        assert!(0b11111110_u8.is_not_full());
+        assert!(0b01111111_u8.is_not_full());
+        assert!(0b11101111_u8.is_not_full());
+    }
 
-#[test]
-fn test_overlaps() {
-    assert!(!0b11110000_u8.overlaps(0b00001111_u8));
-    assert!(0b00011110_u8.overlaps(0b00011000_u8));
-}
+    #[test]
+    fn test_num_bits() {
+        assert_eq!(0b00000000_u8.num_bits(), 0);
+        assert_eq!(0b00001000_u8.num_bits(), 1);
+        assert_eq!(0b01001000_u8.num_bits(), 2);
+        assert_eq!(0b01101000_u8.num_bits(), 3);
+        assert_eq!(0b11111111_u8.num_bits(), 8);
+    }
 
-#[test]
-fn test_range() {
-    assert_eq!(0b11111111_u8.range(2, 6), 0b00111100_u8);
-    assert_eq!(0b10101010_u8.range(2, 6), 0b00101000_u8);
-    assert_eq!(0b01010101_u8.range(2, 6), 0b00010100_u8);
-}
+    #[test]
+    fn test_includes() {
+        assert!(0b00000000_u8.includes(0b00000000_u8));
+        assert!(0b00011110_u8.includes(0b00000110_u8));
+    }
 
-#[test]
-fn test_remove() {
-    assert_eq!(0b11110000_u8.remove(0b00001111_u8), 0b11110000_u8);
-    assert_eq!(0b11110000_u8.remove(0b00111100_u8), 0b11000000_u8);
-}
+    #[test]
+    fn test_overlaps() {
+        assert!(!0b11110000_u8.overlaps(0b00001111_u8));
+        assert!(0b00011110_u8.overlaps(0b00011000_u8));
+    }
 
-#[test]
-fn test_bin_repr() {
-    assert_eq!(0b11110000_u8.bit_repr(), "11110000");
-}
+    #[test]
+    fn test_range() {
+        assert_eq!(0b11111111_u8.range(2, 6), 0b00111100_u8);
+        assert_eq!(0b10101010_u8.range(2, 6), 0b00101000_u8);
+        assert_eq!(0b01010101_u8.range(2, 6), 0b00010100_u8);
+    }
 
-#[test]
-fn test_left_rotate() {
-    // 0 means no change
-    assert_eq!(0b11110000_u8.left_rotate(0), 0b11110000_u8);
+    #[test]
+    fn test_remove() {
+        assert_eq!(0b11110000_u8.remove(0b00001111_u8), 0b11110000_u8);
+        assert_eq!(0b11110000_u8.remove(0b00111100_u8), 0b11000000_u8);
+    }
 
-    assert_eq!(0b11110000_u8.left_rotate(1), 0b11100001_u8);
-    assert_eq!(0b11110000_u8.left_rotate(2), 0b11000011_u8);
-    assert_eq!(0b11110000_u8.left_rotate(3), 0b10000111_u8);
-    assert_eq!(0b11110000_u8.left_rotate(4), 0b00001111_u8);
-    assert_eq!(0b11110000_u8.left_rotate(5), 0b00011110_u8);
-    assert_eq!(0b11110000_u8.left_rotate(6), 0b00111100_u8);
-    assert_eq!(0b11110000_u8.left_rotate(7), 0b01111000_u8);
-    assert_eq!(0b11110000_u8.left_rotate(8), 0b11110000_u8);
-    assert_eq!(0b11110000_u8.left_rotate(9), 0b11100001_u8);
-}
+    #[test]
+    fn test_bin_repr() {
+        assert_eq!(0b11110000_u8.bit_repr(), "11110000");
+    }
 
-#[test]
-fn test_right_rotate() {
-    // 0 means no change
-    assert_eq!(0b11110000_u8.right_rotate(0), 0b11110000_u8);
+    #[test]
+    fn test_left_rotate() {
+        // 0 means no change
+        assert_eq!(0b11110000_u8.left_rotate(0), 0b11110000_u8);
 
-    assert_eq!(0b11110000_u8.right_rotate(1), 0b01111000_u8);
-    assert_eq!(0b11110000_u8.right_rotate(2), 0b00111100_u8);
-    assert_eq!(0b11110000_u8.right_rotate(3), 0b00011110_u8);
-    assert_eq!(0b11110000_u8.right_rotate(4), 0b00001111_u8);
-    assert_eq!(0b11110000_u8.right_rotate(5), 0b10000111_u8);
-    assert_eq!(0b11110000_u8.right_rotate(6), 0b11000011_u8);
-    assert_eq!(0b11110000_u8.right_rotate(7), 0b11100001_u8);
-    assert_eq!(0b11110000_u8.right_rotate(8), 0b11110000_u8);
-    assert_eq!(0b11110000_u8.right_rotate(9), 0b01111000_u8);
-}
+        assert_eq!(0b11110000_u8.left_rotate(1), 0b11100001_u8);
+        assert_eq!(0b11110000_u8.left_rotate(2), 0b11000011_u8);
+        assert_eq!(0b11110000_u8.left_rotate(3), 0b10000111_u8);
+        assert_eq!(0b11110000_u8.left_rotate(4), 0b00001111_u8);
+        assert_eq!(0b11110000_u8.left_rotate(5), 0b00011110_u8);
+        assert_eq!(0b11110000_u8.left_rotate(6), 0b00111100_u8);
+        assert_eq!(0b11110000_u8.left_rotate(7), 0b01111000_u8);
+        assert_eq!(0b11110000_u8.left_rotate(8), 0b11110000_u8);
+        assert_eq!(0b11110000_u8.left_rotate(9), 0b11100001_u8);
+    }
 
-#[test]
-fn test_right_rotate_and_left_rotate_is_reversible() {
-    for bitline in 0..256 {
-        for i in 0..128 {
-            let bitline = bitline as u8;
-            assert_eq!(bitline.right_rotate(i).left_rotate(i), bitline);
+    #[test]
+    fn test_right_rotate() {
+        // 0 means no change
+        assert_eq!(0b11110000_u8.right_rotate(0), 0b11110000_u8);
+
+        assert_eq!(0b11110000_u8.right_rotate(1), 0b01111000_u8);
+        assert_eq!(0b11110000_u8.right_rotate(2), 0b00111100_u8);
+        assert_eq!(0b11110000_u8.right_rotate(3), 0b00011110_u8);
+        assert_eq!(0b11110000_u8.right_rotate(4), 0b00001111_u8);
+        assert_eq!(0b11110000_u8.right_rotate(5), 0b10000111_u8);
+        assert_eq!(0b11110000_u8.right_rotate(6), 0b11000011_u8);
+        assert_eq!(0b11110000_u8.right_rotate(7), 0b11100001_u8);
+        assert_eq!(0b11110000_u8.right_rotate(8), 0b11110000_u8);
+        assert_eq!(0b11110000_u8.right_rotate(9), 0b01111000_u8);
+    }
+
+    #[test]
+    fn test_right_rotate_and_left_rotate_is_reversible() {
+        for bitline in 0..256 {
+            for i in 0..128 {
+                let bitline = bitline as u8;
+                assert_eq!(bitline.right_rotate(i).left_rotate(i), bitline);
+            }
         }
+    }
+
+    #[test]
+    fn test_to_gray_code() {
+        assert_eq!(0b00000000_u8.bin_to_gray_code(), 0b00000000_u8);
+        assert_eq!(0b00000001_u8.bin_to_gray_code(), 0b00000001_u8);
+        assert_eq!(0b00000010_u8.bin_to_gray_code(), 0b00000011_u8);
+        assert_eq!(0b00000011_u8.bin_to_gray_code(), 0b00000010_u8);
+        assert_eq!(0b00000100_u8.bin_to_gray_code(), 0b00000110_u8);
+    }
+
+    #[test]
+    fn test_from_gray_code() {
+        assert_eq!(0b00000000_u8.gray_code_to_bin(), 0b00000000_u8);
+        assert_eq!(0b00000001_u8.gray_code_to_bin(), 0b00000001_u8);
+        assert_eq!(0b00000011_u8.gray_code_to_bin(), 0b00000010_u8);
+        assert_eq!(0b00000011_u8.gray_code_to_bin(), 0b00000010_u8);
+        assert_eq!(0b00000010_u8.gray_code_to_bin(), 0b00000011_u8);
+        assert_eq!(0b00000110_u8.gray_code_to_bin(), 0b00000100_u8);
+    }
+
+    #[test]
+    fn test_to_gray_code_and_from_gray_code_is_reversible() {
+        for bitline in 0..255 {
+            let bitline = bitline as u8;
+            assert_eq!(bitline.gray_code_to_bin().bin_to_gray_code(), bitline);
+            assert_eq!(bitline.bin_to_gray_code().gray_code_to_bin(), bitline);
+        }
+    }
+
+    #[test]
+    fn test_gray_code_distance() {
+        // sequential gray code has always 1 bit difference.
+        for num in 0..255 {
+            let num = num as u8;
+            let gray_code = num.bin_to_gray_code();
+            let next_gray_code = (num + 1).bin_to_gray_code();
+            let distance = (gray_code ^ next_gray_code).num_bits();
+            assert_eq!(distance, 1);
+        }
+    }
+
+    #[test]
+    fn test_to_gray_code_is_bijection() {
+        // gray code is bijection. no collision.
+        let mut counter = HashMap::new();
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            let gray_code = bitline.bin_to_gray_code();
+            let count = counter.entry(gray_code).or_insert(0);
+            *count += 1;
+        }
+        for (_, count) in counter.iter() {
+            assert_eq!(*count, 1);
+        }
+        assert_eq!(counter.len(), 256);
+    }
+
+    #[test]
+    fn test_from_gray_code_is_bijection() {
+        // gray code is bijection. no collision.
+        let mut counter = HashMap::new();
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            let gray_code = bitline.bin_to_gray_code();
+            let restored = gray_code.gray_code_to_bin();
+            let count = counter.entry(restored).or_insert(0);
+            *count += 1;
+        }
+        for (_, count) in counter.iter() {
+            assert_eq!(*count, 1);
+        }
+        assert_eq!(counter.len(), 256);
     }
 }
