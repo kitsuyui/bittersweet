@@ -23,6 +23,22 @@ pub trait Bitline {
     /// ```
     fn as_full() -> Self;
 
+    /// Return the bits pattern such as 01010101...
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// assert_eq!(Bitline8::mask_01(), 0b01010101_u8);
+    /// ```
+    fn mask_01() -> Self;
+
+    /// Return the bits pattern such as 10101010...
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// assert_eq!(Bitline8::mask_10(), 0b10101010_u8);
+    /// ```
+    fn mask_10() -> Self;
+
     /// Return the bits standing in the given range.
     /// # Examples
     /// ```
@@ -342,10 +358,32 @@ pub trait Bitline {
     /// assert_eq!(bitline.bit_reversal_permutation_to_bin(), 0b00000010_u8);
     /// ```
     fn bit_reversal_permutation_to_bin(&self) -> Self;
+
+    /// Return the bitline rotating bits splitting by two bits.
+    ///
+    /// 0b00 -> 0b01
+    /// 0b01 -> 0b11
+    /// 0b10 -> 0b00
+    /// 0b11 -> 0b10
+    /// 0b10 -> 0b00
+    ///
+    /// This rotation is useful to mapping bits into polar coordinates spinning by 90 degrees.
+    ///
+    /// | 10 (3) | 11 (2) |
+    /// |--------+--------|
+    /// | 00 (0) | 01 (1) |
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.two_bits_gray_code_rotation(), 0b01111000_u8);
+    /// ```
+    fn two_bits_gray_code_rotation(&self) -> Self;
 }
 
 macro_rules! impl_Bitline {
-    ($T:ty) => {
+    ($T:ty, $Size:literal) => {
         impl Bitline for $T {
             #[inline]
             fn as_empty() -> Self {
@@ -355,6 +393,31 @@ macro_rules! impl_Bitline {
             fn as_full() -> Self {
                 Self::MAX
             }
+
+            #[inline(always)]
+            fn mask_01() -> Self {
+                // constant 0b01010101...
+                let mut mask = 0 as $T;
+                let shifts = $Size / 2;
+                let val = 1 as $T;
+                for i in 0..shifts {
+                    mask |= val << (i * 2);
+                }
+                mask
+            }
+
+            #[inline(always)]
+            fn mask_10() -> Self {
+                // constant 0b10101010...
+                let mut mask = 0 as $T;
+                let shifts = $Size / 2;
+                let val = 2 as $T;
+                for i in 0..shifts {
+                    mask |= val << (i * 2);
+                }
+                mask
+            }
+
             #[inline]
             fn by_range(begin: usize, end: usize) -> Self {
                 let bits_size = Self::BITS as usize;
@@ -536,15 +599,22 @@ macro_rules! impl_Bitline {
             fn bit_reversal_permutation_to_bin(&self) -> Self {
                 self.bin_to_bit_reversal_permutation()
             }
+
+            #[inline]
+            fn two_bits_gray_code_rotation(&self) -> Self {
+                let r = (self & Self::mask_01()) << 1;
+                let l = ((!self) & Self::mask_10()) >> 1;
+                r | l
+            }
         }
     };
 }
 
-impl_Bitline!(Bitline8);
-impl_Bitline!(Bitline16);
-impl_Bitline!(Bitline32);
-impl_Bitline!(Bitline64);
-impl_Bitline!(Bitline128);
+impl_Bitline!(Bitline8, 8);
+impl_Bitline!(Bitline16, 16);
+impl_Bitline!(Bitline32, 32);
+impl_Bitline!(Bitline64, 64);
+impl_Bitline!(Bitline128, 128);
 
 #[cfg(test)]
 mod tests {
@@ -568,6 +638,32 @@ mod tests {
         assert_eq!(u32::as_full().bit_repr(), "1".repeat(32));
         assert_eq!(u64::as_full().bit_repr(), "1".repeat(64));
         assert_eq!(u128::as_full().bit_repr(), "1".repeat(128));
+    }
+
+    #[test]
+    fn test_mask() {
+        assert_eq!(u8::mask_01().bit_repr(), "01010101");
+        assert_eq!(u8::mask_10().bit_repr(), "10101010");
+        assert_eq!(u16::mask_01().bit_repr(), "0101010101010101");
+        assert_eq!(u16::mask_10().bit_repr(), "1010101010101010");
+        assert_eq!(
+            u32::mask_01().bit_repr(),
+            "01010101010101010101010101010101"
+        );
+        assert_eq!(
+            u32::mask_10().bit_repr(),
+            "10101010101010101010101010101010"
+        );
+        assert_eq!(
+            u64::mask_01().bit_repr(),
+            "0101010101010101010101010101010101010101010101010101010101010101"
+        );
+        assert_eq!(
+            u64::mask_10().bit_repr(),
+            "1010101010101010101010101010101010101010101010101010101010101010"
+        );
+        assert_eq!(u128::mask_01().bit_repr(), "01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101");
+        assert_eq!(u128::mask_10().bit_repr(), "10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
     }
 
     #[test]
@@ -908,6 +1004,20 @@ mod tests {
     fn test_from_bit_reversal_permutation_is_bijection() {
         // bit reversal permutation is bijection. no collision.
         assert_bijection(|bitline| bitline.bit_reversal_permutation_to_bin());
+    }
+
+    #[test]
+    fn test_two_bits_gray_code_rotation() {
+        assert_eq!(0b00000000_u8.two_bits_gray_code_rotation(), 0b01010101_u8);
+        assert_eq!(0b01000001_u8.two_bits_gray_code_rotation(), 0b11010111_u8);
+        assert_eq!(0b10100010_u8.two_bits_gray_code_rotation(), 0b00000100_u8);
+        // 3 times rotation is the same as no rotation.
+        assert_bijection(|bitline| {
+            bitline
+                .two_bits_gray_code_rotation()
+                .two_bits_gray_code_rotation()
+                .two_bits_gray_code_rotation()
+        });
     }
 
     fn assert_bijection(function: fn(u8) -> u8) {
