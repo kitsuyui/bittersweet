@@ -75,8 +75,8 @@ pub trait Bitline {
     /// assert_eq!((0b00111000 as Bitline8).first_index(), Some(2));
     /// assert_eq!((0b00000000 as Bitline8).first_index(), None);
     /// ```
-
     fn first_index(&self) -> Option<usize>;
+
     /// Return the last bit index that is set to one.
     /// If there is no bit set to one, return None.
     /// # Examples
@@ -283,6 +283,29 @@ pub trait Bitline {
     /// assert_eq!(0b01101100_u8.bit_repr(), "01101100");
     /// ```
     fn bit_repr(&self) -> String;
+
+    /// Return the bits rotated to the left by n bits.
+    /// Overflowed bits are moved to the right side.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b01101100_u8;
+    /// assert_eq!(bitline.left_rotate(1), 0b11011000_u8);
+    /// assert_eq!(bitline.left_rotate(2), 0b10110001_u8);
+    /// ```
+    fn left_rotate(&self, n: usize) -> Self;
+
+    /// Return the bits rotated to the right by n bits.
+    /// Overflowed bits are moved to the left side.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b01101100_u8;
+    /// assert_eq!(bitline.right_rotate(1), 0b00110110_u8);
+    /// assert_eq!(bitline.right_rotate(2), 0b00011011_u8);
+    /// assert_eq!(bitline.right_rotate(3), 0b10001101_u8);
+    /// ```
+    fn right_rotate(&self, n: usize) -> Self;
 }
 
 macro_rules! impl_Bitline {
@@ -393,7 +416,6 @@ macro_rules! impl_Bitline {
                 let last_index = self.last_index().unwrap();
                 Self::by_range(first_index, last_index + 1)
             }
-
             #[inline]
             fn length() -> usize {
                 Self::BITS as usize
@@ -427,6 +449,22 @@ macro_rules! impl_Bitline {
                 let formatted = format!("{:b}", self);
                 let lack_bits = Self::length() - formatted.len();
                 "0".repeat(lack_bits) + &formatted
+            }
+            #[inline]
+            fn left_rotate(&self, n: usize) -> Self {
+                let n = n % Self::length();
+                if (n == 0) {
+                    return *self;
+                }
+                (self << n) | (self >> (Self::length() - n))
+            }
+            #[inline]
+            fn right_rotate(&self, n: usize) -> Self {
+                let n = n % Self::length();
+                if (n == 0) {
+                    return *self;
+                }
+                (self >> n) | (self << (Self::length() - n))
             }
         }
     };
@@ -652,4 +690,46 @@ fn test_remove() {
 #[test]
 fn test_bin_repr() {
     assert_eq!(0b11110000_u8.bit_repr(), "11110000");
+}
+
+#[test]
+fn test_left_rotate() {
+    // 0 means no change
+    assert_eq!(0b11110000_u8.left_rotate(0), 0b11110000_u8);
+
+    assert_eq!(0b11110000_u8.left_rotate(1), 0b11100001_u8);
+    assert_eq!(0b11110000_u8.left_rotate(2), 0b11000011_u8);
+    assert_eq!(0b11110000_u8.left_rotate(3), 0b10000111_u8);
+    assert_eq!(0b11110000_u8.left_rotate(4), 0b00001111_u8);
+    assert_eq!(0b11110000_u8.left_rotate(5), 0b00011110_u8);
+    assert_eq!(0b11110000_u8.left_rotate(6), 0b00111100_u8);
+    assert_eq!(0b11110000_u8.left_rotate(7), 0b01111000_u8);
+    assert_eq!(0b11110000_u8.left_rotate(8), 0b11110000_u8);
+    assert_eq!(0b11110000_u8.left_rotate(9), 0b11100001_u8);
+}
+
+#[test]
+fn test_right_rotate() {
+    // 0 means no change
+    assert_eq!(0b11110000_u8.right_rotate(0), 0b11110000_u8);
+
+    assert_eq!(0b11110000_u8.right_rotate(1), 0b01111000_u8);
+    assert_eq!(0b11110000_u8.right_rotate(2), 0b00111100_u8);
+    assert_eq!(0b11110000_u8.right_rotate(3), 0b00011110_u8);
+    assert_eq!(0b11110000_u8.right_rotate(4), 0b00001111_u8);
+    assert_eq!(0b11110000_u8.right_rotate(5), 0b10000111_u8);
+    assert_eq!(0b11110000_u8.right_rotate(6), 0b11000011_u8);
+    assert_eq!(0b11110000_u8.right_rotate(7), 0b11100001_u8);
+    assert_eq!(0b11110000_u8.right_rotate(8), 0b11110000_u8);
+    assert_eq!(0b11110000_u8.right_rotate(9), 0b01111000_u8);
+}
+
+#[test]
+fn test_right_rotate_and_left_rotate_is_reversible() {
+    for bitline in 0..256 {
+        for i in 0..128 {
+            let bitline = bitline as u8;
+            assert_eq!(bitline.right_rotate(i).left_rotate(i), bitline);
+        }
+    }
 }
