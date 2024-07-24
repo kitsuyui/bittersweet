@@ -87,6 +87,8 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 - `right_rotate`
 - `bin_to_gray_code`
 - `gray_code_to_bin`
+- `bit_reversal_permutation_to_bin`
+- `bin_to_bit_reversal_permutation`
 
 ## License
 

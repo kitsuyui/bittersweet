@@ -324,6 +324,24 @@ pub trait Bitline {
     /// assert_eq!(bitline.gray_code_to_bin(), 0b00000010_u8);
     /// ```
     fn gray_code_to_bin(&self) -> Self;
+
+    /// Return the bitline from the binary to the bit reversal permutation index.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00000010_u8;
+    /// assert_eq!(bitline.bin_to_bit_reversal_permutation(), 0b01000000_u8);
+    /// ```
+    fn bin_to_bit_reversal_permutation(&self) -> Self;
+
+    /// Return the bitline from the bit reversal permutation index to the binary.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b01000000_u8;
+    /// assert_eq!(bitline.bit_reversal_permutation_to_bin(), 0b00000010_u8);
+    /// ```
+    fn bit_reversal_permutation_to_bin(&self) -> Self;
 }
 
 macro_rules! impl_Bitline {
@@ -501,6 +519,22 @@ macro_rules! impl_Bitline {
                     }
                 }
                 n
+            }
+
+            #[inline]
+            fn bin_to_bit_reversal_permutation(&self) -> Self {
+                let bits = Self::length();
+                let mut reversed_index = 0;
+                for i in 0..bits {
+                    if (*self & (1 << i)) != 0 {
+                        reversed_index |= 1 << (bits - 1 - i);
+                    }
+                }
+                reversed_index
+            }
+            #[inline]
+            fn bit_reversal_permutation_to_bin(&self) -> Self {
+                self.bin_to_bit_reversal_permutation()
             }
         }
     };
@@ -817,30 +851,72 @@ mod tests {
     }
 
     #[test]
-    fn test_to_gray_code_is_bijection() {
+    fn test_bin_to_gray_code_is_bijection() {
         // gray code is bijection. no collision.
-        let mut counter = HashMap::new();
-        for bitline in 0..256 {
-            let bitline = bitline as u8;
-            let gray_code = bitline.bin_to_gray_code();
-            let count = counter.entry(gray_code).or_insert(0);
-            *count += 1;
-        }
-        for (_, count) in counter.iter() {
-            assert_eq!(*count, 1);
-        }
-        assert_eq!(counter.len(), 256);
+        assert_bijection(|bitline| bitline.bin_to_gray_code());
     }
 
     #[test]
-    fn test_from_gray_code_is_bijection() {
+    fn test_gray_code_to_bin_is_bijection() {
         // gray code is bijection. no collision.
+        assert_bijection(|bitline| bitline.gray_code_to_bin());
+    }
+
+    #[test]
+    fn test_bin_to_bit_reversal_permutation() {
+        assert_eq!(
+            0b00000000_u8.bin_to_bit_reversal_permutation(),
+            0b00000000_u8
+        );
+        assert_eq!(
+            0b00000001_u8.bin_to_bit_reversal_permutation(),
+            0b10000000_u8
+        );
+        assert_eq!(
+            0b00000010_u8.bin_to_bit_reversal_permutation(),
+            0b01000000_u8
+        );
+        // ...
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            let tobe_reverse_str = bitline.bit_repr().chars().rev().collect::<String>();
+            let asis_reversed_str = bitline.bin_to_bit_reversal_permutation().bit_repr();
+            assert_eq!(tobe_reverse_str, asis_reversed_str,);
+        }
+    }
+
+    #[test]
+    fn test_bin_to_bit_reversal_permutation_and_bit_reversal_permutation_to_bin_is_reversible() {
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            assert_eq!(
+                bitline
+                    .bin_to_bit_reversal_permutation()
+                    .bit_reversal_permutation_to_bin(),
+                bitline
+            );
+        }
+    }
+
+    #[test]
+    fn test_to_bit_reversal_permutation_is_bijection() {
+        // bit reversal permutation is bijection. no collision.
+        assert_bijection(|bitline| bitline.bin_to_bit_reversal_permutation());
+    }
+
+    #[test]
+    fn test_from_bit_reversal_permutation_is_bijection() {
+        // bit reversal permutation is bijection. no collision.
+        assert_bijection(|bitline| bitline.bit_reversal_permutation_to_bin());
+    }
+
+    fn assert_bijection(function: fn(u8) -> u8) {
+        // bijection means no collision.
         let mut counter = HashMap::new();
         for bitline in 0..256 {
             let bitline = bitline as u8;
-            let gray_code = bitline.bin_to_gray_code();
-            let restored = gray_code.gray_code_to_bin();
-            let count = counter.entry(restored).or_insert(0);
+            let result = function(bitline);
+            let count = counter.entry(result).or_insert(0);
             *count += 1;
         }
         for (_, count) in counter.iter() {
