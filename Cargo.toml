@@ -5,7 +5,15 @@ authors = ["Yui Kitsu <kitsuyui+github@kitsuyui.com>"]
 description = "Add more intentional predicates to bitwise calcs."
 license = "BSD-3-Clause"
 edition = "2021"
+categories = ["no-std"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+
+[lib]
+crate-type = ["lib"]
+
+[features]
+default = ["std"]
+std = ["string"]
+string = []

@@ -1,8 +1,14 @@
 [target.'cfg(all())']
 rustflags = [
     "-Wclippy::fallible_impl_from",
-    "-Dclippy::unwrap_used",
-    "-Dclippy::expect_used",
+    "-Dclippy::unwrap_used",  # Forbid `unwrap()`
+    "-Dclippy::expect_used",  # Forbid `expect()`
+    "-Dclippy::panic",  # Forbid `panic!`
+    "-Dclippy::print_stdout",  # Forbid `println!` and `print!`
+    "-Dclippy::dbg_macro",  # Forbid `dbg!`
+    "-Dclippy::todo",  # Forbid `todo!`
+    "-Dclippy::unimplemented",  # Forbid `unimplemented!`
+    "-Dclippy::style",  # Forbid all style lints
 ]
 
 [alias]
