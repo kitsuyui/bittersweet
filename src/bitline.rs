@@ -1,4 +1,15 @@
-use std::cmp;
+#[cfg(feature = "std")]
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate std;
+#[cfg(feature = "std")]
+use std::prelude::v1::*;
+
+use core::cmp;
+use core::option::{
+    Option,
+    Option::{None, Some},
+};
 
 pub type Bitline8 = u8;
 pub type Bitline16 = u16;
@@ -298,6 +309,7 @@ pub trait Bitline {
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// assert_eq!(0b01101100_u8.bit_repr(), "01101100");
     /// ```
+    #[cfg(feature = "std")]
     fn bit_repr(&self) -> String;
 
     /// Return the bits rotated to the left by n bits.
@@ -543,6 +555,7 @@ macro_rules! impl_Bitline {
             fn remove(&self, other: Self) -> Self {
                 self & !other
             }
+            #[cfg(feature = "std")]
             #[inline]
             fn bit_repr(&self) -> String {
                 let formatted = format!("{:b}", self);
