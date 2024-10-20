@@ -7,8 +7,8 @@ pub mod matrix;
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn test_basis() {
+        use crate::bitline::Bitline;
+        assert_eq!(u8::as_empty().bit_repr(), "0".repeat(8));
     }
 }
