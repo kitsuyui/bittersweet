@@ -382,4 +382,143 @@ pub trait Bitline {
     /// assert_eq!(bitline.two_bits_gray_code_rotation(), 0b01111000_u8);
     /// ```
     fn two_bits_gray_code_rotation(&self) -> Self;
+
+    /// Access the specified position in the bit sequence and get the value of the bit.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.access(0), false);
+    /// assert_eq!(bitline.access(1), false);
+    /// assert_eq!(bitline.access(2), false);
+    /// assert_eq!(bitline.access(3), true);
+    /// assert_eq!(bitline.access(4), true);
+    /// ```
+    fn access(&self, index: usize) -> bool;
+
+    /// Count how many times 0 appears up to the index (i-th) position.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.rank_0(0), 0);
+    /// assert_eq!(bitline.rank_0(1), 1);
+    /// assert_eq!(bitline.rank_0(2), 2);
+    /// assert_eq!(bitline.rank_0(5), 3);
+    /// ```
+    fn rank_0(&self, index: usize) -> usize;
+
+    /// Count how many times 1 appears up to the index (i-th) position.
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.rank_1(0), 0);
+    /// assert_eq!(bitline.rank_1(1), 0);
+    /// assert_eq!(bitline.rank_1(2), 0);
+    /// assert_eq!(bitline.rank_1(3), 0);
+    /// assert_eq!(bitline.rank_1(4), 1);
+    /// assert_eq!(bitline.rank_1(5), 2);
+    /// assert_eq!(bitline.rank_1(6), 3);
+    /// assert_eq!(bitline.rank_1(7), 4);
+    /// assert_eq!(bitline.rank_1(8), 4);
+    /// ```
+    fn rank_1(&self, index: usize) -> usize;
+
+    /// Count how many times specified bit appears up to the index (i-th) position.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.rank(0, false), 0);
+    /// assert_eq!(bitline.rank(1, false), 1);
+    /// assert_eq!(bitline.rank(2, false), 2);
+    /// assert_eq!(bitline.rank(3, true), 0);
+    /// ```
+    fn rank(&self, index: usize, bit: bool) -> usize;
+
+    /// Count how many times 0 appears between the begin (i-th) and the end (j-th) positions.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.rank_range_0(0, 1), 1);
+    /// assert_eq!(bitline.rank_range_0(0, 3), 3);
+    /// assert_eq!(bitline.rank_range_0(0, 4), 3);
+    /// ```
+    fn rank_range_0(&self, begin: usize, end: usize) -> usize;
+
+    /// Count how many times 1 appears between the begin (i-th) and the end (j-th) positions.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.rank_range_1(0, 1), 0);
+    /// assert_eq!(bitline.rank_range_1(0, 3), 0);
+    /// assert_eq!(bitline.rank_range_1(0, 4), 1);
+    /// assert_eq!(bitline.rank_range_1(3, 5), 2);
+    /// ```
+    fn rank_range_1(&self, begin: usize, end: usize) -> usize;
+
+    /// Count how many times specified bit appears between the begin (i-th) and the end (j-th) positions.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.rank_range(0, 1, false), 1);
+    /// assert_eq!(bitline.rank_range(0, 3, false), 3);
+    /// assert_eq!(bitline.rank_range(0, 4, false), 3);
+    /// assert_eq!(bitline.rank_range(0, 4, true), 1);
+    /// ```
+    fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize;
+
+    /// Find the position where the n-th 0 appears.
+    /// If there is no n-th 0, return None.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.select_0(0), Some(0));
+    /// assert_eq!(bitline.select_0(1), Some(1));
+    /// assert_eq!(bitline.select_0(2), Some(2));
+    /// assert_eq!(bitline.select_0(3), Some(7));
+    /// assert_eq!(bitline.select_0(4), None);
+    /// ```
+    fn select_0(&self, nth: usize) -> Option<usize>;
+
+    /// Find the position where the n-th 1 appears.
+    /// If there is no n-th 1, return None.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.select_1(0), Some(3));
+    /// assert_eq!(bitline.select_1(1), Some(4));
+    /// assert_eq!(bitline.select_1(2), Some(5));
+    /// assert_eq!(bitline.select_1(3), Some(6));
+    /// assert_eq!(bitline.select_1(4), None);
+    /// ```
+    fn select_1(&self, nth: usize) -> Option<usize>;
+
+    /// Find the position where the n-th specified bit appears.
+    /// If there is no n-th specified bit, return None.
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.select(0, false), Some(0));
+    /// assert_eq!(bitline.select(1, false), Some(1));
+    /// assert_eq!(bitline.select(2, false), Some(2));
+    /// assert_eq!(bitline.select(0, true), Some(3));
+    /// ```
+    fn select(&self, nth: usize, bit: bool) -> Option<usize>;
 }

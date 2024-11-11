@@ -243,6 +243,98 @@ macro_rules! impl_Bitline {
                 let l = ((!self) & Self::mask_10()) >> 1;
                 r | l
             }
+
+            #[inline]
+            fn access(&self, index: usize) -> bool {
+                (*self & (1 << (Self::length() - index - 1))) != 0
+            }
+
+            #[inline]
+            fn rank_0(&self, index: usize) -> usize {
+                let mask_range = !Self::by_range(0, index);
+                (*self | mask_range).count_zeros() as usize
+            }
+
+            #[inline]
+            fn rank_1(&self, index: usize) -> usize {
+                let mask_range = !Self::by_range(0, index);
+                (*self & !mask_range).count_ones() as usize
+            }
+
+            #[inline]
+            fn rank(&self, index: usize, bit: bool) -> usize {
+                if bit {
+                    self.rank_1(index)
+                } else {
+                    self.rank_0(index)
+                }
+            }
+
+            #[inline]
+            fn rank_range_0(&self, begin: usize, end: usize) -> usize {
+                let mask_begin = Self::by_range(0, begin);
+                let mask_end = Self::by_range(end, Self::length());
+                let mask = mask_begin | mask_end;
+                (*self | mask).count_zeros() as usize
+            }
+
+            #[inline]
+            fn rank_range_1(&self, begin: usize, end: usize) -> usize {
+                let mask_begin = Self::by_range(0, begin);
+                let mask_end = Self::by_range(end, Self::length());
+                let mask = mask_begin | mask_end;
+                (*self & !mask).count_ones() as usize
+            }
+
+            #[inline]
+            fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize {
+                if bit {
+                    self.rank_range_1(begin, end)
+                } else {
+                    self.rank_range_0(begin, end)
+                }
+            }
+
+            #[inline]
+            fn select_0(&self, nth: usize) -> Option<usize> {
+                // TODO: naive implementation. improve performance.
+                let mut count = 0;
+                for i in 0..Self::length() {
+                    if (self.access(i)) {
+                        continue;
+                    }
+                    if (count == nth) {
+                        return Some(i);
+                    }
+                    count += 1;
+                }
+                None
+            }
+
+            #[inline]
+            fn select_1(&self, nth: usize) -> Option<usize> {
+                // TODO: naive implementation. improve performance.
+                let mut count = 0;
+                for i in 0..Self::length() {
+                    if (!self.access(i)) {
+                        continue;
+                    }
+                    if (count == nth) {
+                        return Some(i);
+                    }
+                    count += 1;
+                }
+                None
+            }
+
+            #[inline]
+            fn select(&self, nth: usize, bit: bool) -> Option<usize> {
+                if bit {
+                    self.select_1(nth)
+                } else {
+                    self.select_0(nth)
+                }
+            }
         }
     };
 }
@@ -655,6 +747,65 @@ mod tests {
                 .two_bits_gray_code_rotation()
                 .two_bits_gray_code_rotation()
         });
+    }
+
+    #[test]
+    fn test_access() {
+        assert!(!0b00000000_u8.access(0));
+        assert!(!0b00000000_u8.access(1));
+        assert!(!0b00000000_u8.access(2));
+        assert!(!0b00000000_u8.access(3));
+        assert!(0b00001000_u8.access(4));
+        assert!(!0b00001000_u8.access(5));
+        assert!(!0b00001000_u8.access(6));
+        assert!(!0b00001000_u8.access(7));
+    }
+
+    #[test]
+    fn test_rank_operations() {
+        // rank(index, true) is equivalent to rank_1(index)
+        // rank(index, false) is equivalent to rank_0(index)
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            for i in 0..8 {
+                assert_eq!(bitline.rank(i as usize, true), bitline.rank_1(i as usize));
+                assert_eq!(bitline.rank(i as usize, false), bitline.rank_0(i as usize));
+            }
+        }
+        // rank_range(0, index, true) is equivalent to rank_range_1(0, index)
+        // rank_range(0, index, false) is equivalent to rank_range_0(0, index)
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            for i in 0..8 {
+                assert_eq!(
+                    bitline.rank_range(0, i as usize, true),
+                    bitline.rank_range_1(0, i as usize)
+                );
+                assert_eq!(
+                    bitline.rank_range(0, i as usize, false),
+                    bitline.rank_range_0(0, i as usize)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_select_operations() {
+        // select(nth, true) is equivalent to select_1(nth)
+        // select(nth, false) is equivalent to select_0(nth)
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            for i in 0..8 {
+                assert_eq!(
+                    bitline.select(i as usize, true),
+                    bitline.select_1(i as usize)
+                );
+                assert_eq!(
+                    bitline.select(i as usize, false),
+                    bitline.select_0(i as usize)
+                );
+            }
+        }
     }
 
     fn assert_bijection(function: fn(u8) -> u8) {
