@@ -1,7 +1,7 @@
 # bittersweet
 
 ![Crates.io](https://img.shields.io/crates/v/bittersweet)
-[![codecov](https://codecov.io/gh/kitsuyui/bittersweet/branch/main/graph/badge.svg?token=G5SJOXT99J)](https://codecov.io/gh/kitsuyui/bittersweet)
+![Coverage](https://raw.githubusercontent.com/kitsuyui/octocov-central/main/badges/kitsuyui/bittersweet/coverage.svg)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 Bittersweet is a library for bit manipulation.
