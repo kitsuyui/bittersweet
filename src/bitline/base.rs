@@ -395,6 +395,10 @@ pub trait Bitline {
     /// assert_eq!(bitline.access(3), true);
     /// assert_eq!(bitline.access(4), true);
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is greater than or equal to the bitline length.
     fn access(&self, index: usize) -> bool;
 
     /// Count how many times 0 appears up to the index (i-th) position.
