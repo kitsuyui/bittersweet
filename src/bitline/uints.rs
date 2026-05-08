@@ -246,6 +246,7 @@ macro_rules! impl_Bitline {
 
             #[inline]
             fn access(&self, index: usize) -> bool {
+                assert!(index < Self::length(), "bit index out of range");
                 (*self & (1 << (Self::length() - index - 1))) != 0
             }
 
@@ -759,6 +760,12 @@ mod tests {
         assert!(!0b00001000_u8.access(5));
         assert!(!0b00001000_u8.access(6));
         assert!(!0b00001000_u8.access(7));
+    }
+
+    #[test]
+    #[should_panic(expected = "bit index out of range")]
+    fn test_access_panics_on_out_of_range_index() {
+        let _ = 0b00001000_u8.access(8);
     }
 
     #[test]
