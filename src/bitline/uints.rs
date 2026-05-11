@@ -104,12 +104,16 @@ macro_rules! impl_Bitline {
             }
             #[inline]
             fn radius(&self, n: usize) -> Self {
+                if n >= Self::BITS as usize {
+                    return Self::as_empty();
+                }
                 (self << n) ^ (self >> n)
             }
             #[inline]
             fn around(&self, n: usize) -> Self {
+                let upper = cmp::min(n.saturating_add(1), Self::BITS as usize);
                 let mut a = 0;
-                for m in 0..(n + 1) {
+                for m in 0..upper {
                     a |= self.radius(m);
                 }
                 a
@@ -436,6 +440,24 @@ mod tests {
     }
 
     #[test]
+    fn test_radius_out_of_range_is_empty() {
+        // n >= bits has no in-range neighbor, so the result is empty.
+        // This is identical between debug and release builds (no shift overflow).
+        assert_eq!(0b00010000_u8.radius(8), 0b00000000_u8);
+        assert_eq!(0b11111111_u8.radius(8), 0b00000000_u8);
+        assert_eq!(0b00010000_u8.radius(9), 0b00000000_u8);
+        assert_eq!(0b00010000_u8.radius(usize::MAX), 0b00000000_u8);
+        assert_eq!(0b1010101010101010_u16.radius(16), 0_u16);
+        assert_eq!(0b1010101010101010_u16.radius(usize::MAX), 0_u16);
+        assert_eq!(u32::MAX.radius(32), 0_u32);
+        assert_eq!(u32::MAX.radius(usize::MAX), 0_u32);
+        assert_eq!(u64::MAX.radius(64), 0_u64);
+        assert_eq!(u64::MAX.radius(usize::MAX), 0_u64);
+        assert_eq!(u128::MAX.radius(128), 0_u128);
+        assert_eq!(u128::MAX.radius(usize::MAX), 0_u128);
+    }
+
+    #[test]
     fn test_around() {
         assert_eq!(0b00010000_u8.around(0), 0b00000000_u8);
         assert_eq!(0b00010000_u8.around(1), 0b00101000_u8);
@@ -445,6 +467,20 @@ mod tests {
         assert_eq!(0b00000000_u8.around(0), 0b00000000_u8);
         assert_eq!(0b00000000_u8.around(1), 0b00000000_u8);
         assert_eq!(0b00000000_u8.around(2), 0b00000000_u8);
+    }
+
+    #[test]
+    fn test_around_out_of_range_is_capped() {
+        // n >= bits is capped at the in-range radii union.
+        let bitline = 0b00010000_u8;
+        let saturated = bitline.around(7);
+        assert_eq!(bitline.around(8), saturated);
+        assert_eq!(bitline.around(9), saturated);
+        assert_eq!(bitline.around(usize::MAX), saturated);
+        // with_around propagates the same cap.
+        let with_saturated = bitline.with_around(7);
+        assert_eq!(bitline.with_around(8), with_saturated);
+        assert_eq!(bitline.with_around(usize::MAX), with_saturated);
     }
 
     #[test]

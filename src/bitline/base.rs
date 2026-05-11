@@ -106,6 +106,13 @@ pub trait Bitline {
 
     /// Return the bits standing in n distance from the original starting bit.
     /// If there is no bit set to one, return None.
+    ///
+    /// When `n` is greater than or equal to the bitline length (e.g.
+    /// `Bitline8::radius(8)`), no in-range neighbor exists, so the result is
+    /// `Self::as_empty()`. This makes the behavior identical between debug
+    /// and release builds (`<<` and `>>` would otherwise panic in debug and
+    /// be implementation-defined in release for out-of-range shift amounts).
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -123,10 +130,21 @@ pub trait Bitline {
     /// assert_eq!(bitline.radius(0), 0b00000000);
     /// assert_eq!(bitline.radius(1), 0b01011010);
     /// assert_eq!(bitline.radius(2), 0b10011001);
+    ///
+    /// // Out-of-range radius is empty (in-range neighbors do not exist).
+    /// let bitline = 0b00010000 as Bitline8;
+    /// assert_eq!(bitline.radius(8), 0b00000000);
+    /// assert_eq!(bitline.radius(usize::MAX), 0b00000000);
     /// ```
     fn radius(&self, n: usize) -> Self;
 
     /// Return all bits standing between n distance from the standing bits (without original standing bits).
+    ///
+    /// When `n` is greater than or equal to the bitline length, the iteration
+    /// is capped at `Self::length() - 1`, so the result is the union of every
+    /// in-range radius. This avoids relying on out-of-range primitive shift,
+    /// keeping debug and release behavior identical.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -139,6 +157,11 @@ pub trait Bitline {
     /// assert_eq!(bitline.around(0), 0b00000000);
     /// assert_eq!(bitline.around(1), 0b00000000);
     /// assert_eq!(bitline.around(2), 0b00000000);
+    ///
+    /// // n >= length is capped to the in-range radii.
+    /// let bitline = 0b00001000 as Bitline8;
+    /// assert_eq!(bitline.around(8), bitline.around(7));
+    /// assert_eq!(bitline.around(usize::MAX), bitline.around(7));
     /// ```
     fn around(&self, n: usize) -> Self;
 
