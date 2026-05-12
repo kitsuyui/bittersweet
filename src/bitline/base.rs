@@ -435,9 +435,14 @@ pub trait Bitline {
     /// assert_eq!(bitline.rank_0(2), 2);
     /// assert_eq!(bitline.rank_0(5), 3);
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is greater than the bitline length.
     fn rank_0(&self, index: usize) -> usize;
 
     /// Count how many times 1 appears up to the index (i-th) position.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -452,6 +457,10 @@ pub trait Bitline {
     /// assert_eq!(bitline.rank_1(7), 4);
     /// assert_eq!(bitline.rank_1(8), 4);
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is greater than the bitline length.
     fn rank_1(&self, index: usize) -> usize;
 
     /// Count how many times specified bit appears up to the index (i-th) position.
@@ -477,6 +486,10 @@ pub trait Bitline {
     /// assert_eq!(bitline.rank_range_0(0, 3), 3);
     /// assert_eq!(bitline.rank_range_0(0, 4), 3);
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `begin > end` or if `end` is greater than the bitline length.
     fn rank_range_0(&self, begin: usize, end: usize) -> usize;
 
     /// Count how many times 1 appears between the begin (i-th) and the end (j-th) positions.
@@ -490,6 +503,10 @@ pub trait Bitline {
     /// assert_eq!(bitline.rank_range_1(0, 4), 1);
     /// assert_eq!(bitline.rank_range_1(3, 5), 2);
     /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `begin > end` or if `end` is greater than the bitline length.
     fn rank_range_1(&self, begin: usize, end: usize) -> usize;
 
     /// Count how many times specified bit appears between the begin (i-th) and the end (j-th) positions.
