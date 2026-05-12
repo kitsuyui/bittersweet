@@ -107,13 +107,13 @@ macro_rules! impl_Bitline {
                 if n >= Self::BITS as usize {
                     return Self::as_empty();
                 }
-                (self << n) ^ (self >> n)
+                (self << n) | (self >> n)
             }
             #[inline]
             fn around(&self, n: usize) -> Self {
                 let upper = cmp::min(n.saturating_add(1), Self::BITS as usize);
                 let mut a = 0;
-                for m in 0..upper {
+                for m in 1..upper {
                     a |= self.radius(m);
                 }
                 a
@@ -429,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_radius() {
-        assert_eq!(0b00010000_u8.radius(0), 0b00000000_u8);
+        assert_eq!(0b00010000_u8.radius(0), 0b00010000_u8);
         assert_eq!(0b00010000_u8.radius(1), 0b00101000_u8);
         assert_eq!(0b00010000_u8.radius(2), 0b01000100_u8);
         assert_eq!(0b00010000_u8.radius(3), 0b10000010_u8);
@@ -437,6 +437,8 @@ mod tests {
         assert_eq!(0b00000000_u8.radius(0), 0b00000000_u8);
         assert_eq!(0b00000000_u8.radius(1), 0b00000000_u8);
         assert_eq!(0b00000000_u8.radius(2), 0b00000000_u8);
+        // OR semantics: multi-bit inputs do not cancel at coinciding positions
+        assert_eq!(0b00100010_u8.radius(2), 0b10001000_u8);
     }
 
     #[test]
