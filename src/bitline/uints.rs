@@ -256,12 +256,14 @@ macro_rules! impl_Bitline {
 
             #[inline]
             fn rank_0(&self, index: usize) -> usize {
+                assert!(index <= Self::length(), "bit index out of range");
                 let mask_range = !Self::by_range(0, index);
                 (*self | mask_range).count_zeros() as usize
             }
 
             #[inline]
             fn rank_1(&self, index: usize) -> usize {
+                assert!(index <= Self::length(), "bit index out of range");
                 let mask_range = !Self::by_range(0, index);
                 (*self & !mask_range).count_ones() as usize
             }
@@ -277,6 +279,8 @@ macro_rules! impl_Bitline {
 
             #[inline]
             fn rank_range_0(&self, begin: usize, end: usize) -> usize {
+                assert!(begin <= end, "inverted range: begin must be ≤ end");
+                assert!(end <= Self::length(), "end index out of range");
                 let mask_begin = Self::by_range(0, begin);
                 let mask_end = Self::by_range(end, Self::length());
                 let mask = mask_begin | mask_end;
@@ -285,6 +289,8 @@ macro_rules! impl_Bitline {
 
             #[inline]
             fn rank_range_1(&self, begin: usize, end: usize) -> usize {
+                assert!(begin <= end, "inverted range: begin must be ≤ end");
+                assert!(end <= Self::length(), "end index out of range");
                 let mask_begin = Self::by_range(0, begin);
                 let mask_end = Self::by_range(end, Self::length());
                 let mask = mask_begin | mask_end;
@@ -802,6 +808,42 @@ mod tests {
     #[should_panic(expected = "bit index out of range")]
     fn test_access_panics_on_out_of_range_index() {
         let _ = 0b00001000_u8.access(8);
+    }
+
+    #[test]
+    #[should_panic(expected = "bit index out of range")]
+    fn test_rank_0_panics_on_out_of_range_index() {
+        let _ = 0b00001000_u8.rank_0(9);
+    }
+
+    #[test]
+    #[should_panic(expected = "bit index out of range")]
+    fn test_rank_1_panics_on_out_of_range_index() {
+        let _ = 0b00001000_u8.rank_1(9);
+    }
+
+    #[test]
+    #[should_panic(expected = "inverted range")]
+    fn test_rank_range_0_panics_on_inverted_range() {
+        let _ = 0b00001000_u8.rank_range_0(5, 3);
+    }
+
+    #[test]
+    #[should_panic(expected = "inverted range")]
+    fn test_rank_range_1_panics_on_inverted_range() {
+        let _ = 0b00001000_u8.rank_range_1(5, 3);
+    }
+
+    #[test]
+    #[should_panic(expected = "end index out of range")]
+    fn test_rank_range_0_panics_on_out_of_range_end() {
+        let _ = 0b00001000_u8.rank_range_0(0, 9);
+    }
+
+    #[test]
+    #[should_panic(expected = "end index out of range")]
+    fn test_rank_range_1_panics_on_out_of_range_end() {
+        let _ = 0b00001000_u8.rank_range_1(0, 9);
     }
 
     #[test]
