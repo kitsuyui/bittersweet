@@ -522,47 +522,47 @@ pub trait Bitline {
     /// ```
     fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize;
 
-    /// Find the position where the n-th 0 appears.
-    /// If there is no n-th 0, return None.
+    /// Find the position where the `nth`-th 0 appears (`nth` is 0-indexed: 0 = first match).
+    /// If there is no such 0, return None.
     ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00011110_u8;
-    /// assert_eq!(bitline.select_0(0), Some(0));
-    /// assert_eq!(bitline.select_0(1), Some(1));
-    /// assert_eq!(bitline.select_0(2), Some(2));
-    /// assert_eq!(bitline.select_0(3), Some(7));
+    /// assert_eq!(bitline.select_0(0), Some(0)); // first 0
+    /// assert_eq!(bitline.select_0(1), Some(1)); // second 0
+    /// assert_eq!(bitline.select_0(2), Some(2)); // third 0
+    /// assert_eq!(bitline.select_0(3), Some(7)); // fourth 0
     /// assert_eq!(bitline.select_0(4), None);
     /// ```
     fn select_0(&self, nth: usize) -> Option<usize>;
 
-    /// Find the position where the n-th 1 appears.
-    /// If there is no n-th 1, return None.
+    /// Find the position where the `nth`-th 1 appears (`nth` is 0-indexed: 0 = first match).
+    /// If there is no such 1, return None.
     ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00011110_u8;
-    /// assert_eq!(bitline.select_1(0), Some(3));
-    /// assert_eq!(bitline.select_1(1), Some(4));
-    /// assert_eq!(bitline.select_1(2), Some(5));
-    /// assert_eq!(bitline.select_1(3), Some(6));
+    /// assert_eq!(bitline.select_1(0), Some(3)); // first 1
+    /// assert_eq!(bitline.select_1(1), Some(4)); // second 1
+    /// assert_eq!(bitline.select_1(2), Some(5)); // third 1
+    /// assert_eq!(bitline.select_1(3), Some(6)); // fourth 1
     /// assert_eq!(bitline.select_1(4), None);
     /// ```
     fn select_1(&self, nth: usize) -> Option<usize>;
 
-    /// Find the position where the n-th specified bit appears.
-    /// If there is no n-th specified bit, return None.
+    /// Find the position where the `nth`-th occurrence of `bit` appears (`nth` is 0-indexed: 0 = first match).
+    /// If there is no such bit, return None.
     ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00011110_u8;
-    /// assert_eq!(bitline.select(0, false), Some(0));
-    /// assert_eq!(bitline.select(1, false), Some(1));
-    /// assert_eq!(bitline.select(2, false), Some(2));
-    /// assert_eq!(bitline.select(0, true), Some(3));
+    /// assert_eq!(bitline.select(0, false), Some(0)); // first 0
+    /// assert_eq!(bitline.select(1, false), Some(1)); // second 0
+    /// assert_eq!(bitline.select(2, false), Some(2)); // third 0
+    /// assert_eq!(bitline.select(0, true), Some(3));  // first 1
     /// ```
     fn select(&self, nth: usize, bit: bool) -> Option<usize>;
 }
