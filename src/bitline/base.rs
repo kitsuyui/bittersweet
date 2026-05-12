@@ -104,8 +104,13 @@ pub trait Bitline {
     /// ```
     fn last_index(&self) -> Option<usize>;
 
-    /// Return the bits standing in n distance from the original starting bit.
-    /// If there is no bit set to one, return None.
+    /// Return the union of bits standing at exactly n distance from each set bit.
+    ///
+    /// For each set bit, the two neighbors at positions `bit - n` and `bit + n`
+    /// are included in the result (OR / union semantics). When multiple set bits
+    /// share a neighbor at the same position, those positions are still included
+    /// (no cancellation). `radius(0)` returns `self` because each bit is at
+    /// distance 0 from itself.
     ///
     /// When `n` is greater than or equal to the bitline length (e.g.
     /// `Bitline8::radius(8)`), no in-range neighbor exists, so the result is
@@ -117,7 +122,7 @@ pub trait Bitline {
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b00001000 as Bitline8;
-    /// assert_eq!(bitline.radius(0), 0b00000000);
+    /// assert_eq!(bitline.radius(0), 0b00001000);
     /// assert_eq!(bitline.radius(1), 0b00010100);
     /// assert_eq!(bitline.radius(2), 0b00100010);
     ///
@@ -127,7 +132,7 @@ pub trait Bitline {
     /// assert_eq!(bitline.radius(2), 0b00000000);
     ///
     /// let bitline = 0b00100100 as Bitline8;
-    /// assert_eq!(bitline.radius(0), 0b00000000);
+    /// assert_eq!(bitline.radius(0), 0b00100100);
     /// assert_eq!(bitline.radius(1), 0b01011010);
     /// assert_eq!(bitline.radius(2), 0b10011001);
     ///
