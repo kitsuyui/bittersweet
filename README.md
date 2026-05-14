@@ -54,6 +54,10 @@ So these operations keep zero-cost abstraction.
 
 See [docs.rs](https://docs.rs/bittersweet/latest/bittersweet/)
 
+## Release Notes
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes.
+
 ## Manipulations
 
 https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
