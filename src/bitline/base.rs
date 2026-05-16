@@ -332,17 +332,29 @@ pub trait Bitline {
 
     /// Return the bits rotated to the left by n bits.
     /// Overflowed bits are moved to the right side.
+    ///
+    /// The rotation distance is reduced modulo the bitline length. For
+    /// example, `Bitline8::left_rotate(8)` returns the original value and
+    /// `Bitline8::left_rotate(9)` is equivalent to `Bitline8::left_rotate(1)`.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// let bitline = 0b01101100_u8;
     /// assert_eq!(bitline.left_rotate(1), 0b11011000_u8);
     /// assert_eq!(bitline.left_rotate(2), 0b10110001_u8);
+    /// assert_eq!(bitline.left_rotate(8), bitline);
+    /// assert_eq!(bitline.left_rotate(9), bitline.left_rotate(1));
     /// ```
     fn left_rotate(&self, n: usize) -> Self;
 
     /// Return the bits rotated to the right by n bits.
     /// Overflowed bits are moved to the left side.
+    ///
+    /// The rotation distance is reduced modulo the bitline length. For
+    /// example, `Bitline8::right_rotate(8)` returns the original value and
+    /// `Bitline8::right_rotate(9)` is equivalent to `Bitline8::right_rotate(1)`.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -350,6 +362,8 @@ pub trait Bitline {
     /// assert_eq!(bitline.right_rotate(1), 0b00110110_u8);
     /// assert_eq!(bitline.right_rotate(2), 0b00011011_u8);
     /// assert_eq!(bitline.right_rotate(3), 0b10001101_u8);
+    /// assert_eq!(bitline.right_rotate(8), bitline);
+    /// assert_eq!(bitline.right_rotate(9), bitline.right_rotate(1));
     /// ```
     fn right_rotate(&self, n: usize) -> Self;
 
