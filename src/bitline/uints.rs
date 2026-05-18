@@ -56,11 +56,12 @@ macro_rules! impl_Bitline {
 
             #[inline]
             fn by_range(begin: usize, end: usize) -> Self {
+                assert!(begin <= end, "inverted range: begin must be <= end");
                 let bits_size = Self::BITS as usize;
                 let last_index = cmp::min(end, bits_size);
                 let first_index = cmp::min(begin, last_index);
                 let size = last_index - first_index;
-                if (size <= 0) {
+                if (size == 0) {
                     return Self::as_empty();
                 }
                 if (size >= bits_size) {
@@ -411,6 +412,18 @@ mod tests {
         assert_eq!(u8::by_range(3, 4), 0b00010000);
         assert_eq!(u8::by_range(0, 8), 0b11111111);
         assert_eq!(u8::by_range(0, 0), 0b00000000);
+    }
+
+    #[test]
+    #[should_panic(expected = "inverted range")]
+    fn test_by_range_panics_on_inverted_range() {
+        let _ = u8::by_range(5, 3);
+    }
+
+    #[test]
+    #[should_panic(expected = "inverted range")]
+    fn test_range_panics_on_inverted_range() {
+        let _ = 0b11111111_u8.range(5, 3);
     }
 
     #[test]

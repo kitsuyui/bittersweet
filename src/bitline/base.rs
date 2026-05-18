@@ -46,6 +46,9 @@ pub trait Bitline {
     /// use bittersweet::bitline::{Bitline, Bitline8};
     /// assert_eq!(Bitline8::by_range(2, 5), 0b00111000_u8);
     /// ```
+    /// # Panics
+    ///
+    /// Panics if `begin > end`.
     fn by_range(begin: usize, end: usize) -> Self;
 
     /// Return true if the bit is filled with zero.
@@ -309,6 +312,9 @@ pub trait Bitline {
     /// assert_eq!(bitline.range(0, 4), 0b01100000_u8);
     /// assert_eq!(bitline.range(4, 8), 0b00001100_u8);
     /// ```
+    /// # Panics
+    ///
+    /// Panics if `begin > end`.
     fn range(&self, begin: usize, end: usize) -> Self;
 
     /// Return the standing bits not included by the given range.
