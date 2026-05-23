@@ -862,6 +862,54 @@ mod tests {
     }
 
     #[test]
+    fn test_try_access() {
+        let bitline = 0b00011110_u8;
+        assert_eq!(bitline.try_access(0), Some(false));
+        assert_eq!(bitline.try_access(3), Some(true));
+        assert_eq!(bitline.try_access(7), Some(false));
+        assert_eq!(bitline.try_access(8), None);
+        assert_eq!(bitline.try_access(100), None);
+    }
+
+    #[test]
+    fn test_try_rank_0() {
+        let bitline = 0b00011110_u8;
+        assert_eq!(bitline.try_rank_0(0), Some(0));
+        assert_eq!(bitline.try_rank_0(2), Some(2));
+        assert_eq!(bitline.try_rank_0(8), Some(4));
+        assert_eq!(bitline.try_rank_0(9), None);
+    }
+
+    #[test]
+    fn test_try_rank_1() {
+        let bitline = 0b00011110_u8;
+        assert_eq!(bitline.try_rank_1(0), Some(0));
+        assert_eq!(bitline.try_rank_1(4), Some(1));
+        assert_eq!(bitline.try_rank_1(8), Some(4));
+        assert_eq!(bitline.try_rank_1(9), None);
+    }
+
+    #[test]
+    fn test_try_rank_range_0() {
+        let bitline = 0b00011110_u8;
+        assert_eq!(bitline.try_rank_range_0(0, 4), Some(3));
+        assert_eq!(bitline.try_rank_range_0(0, 8), Some(4));
+        assert_eq!(bitline.try_rank_range_0(3, 5), Some(0));
+        assert_eq!(bitline.try_rank_range_0(5, 3), None);
+        assert_eq!(bitline.try_rank_range_0(0, 9), None);
+    }
+
+    #[test]
+    fn test_try_rank_range_1() {
+        let bitline = 0b00011110_u8;
+        assert_eq!(bitline.try_rank_range_1(0, 4), Some(1));
+        assert_eq!(bitline.try_rank_range_1(0, 8), Some(4));
+        assert_eq!(bitline.try_rank_range_1(3, 7), Some(4));
+        assert_eq!(bitline.try_rank_range_1(5, 3), None);
+        assert_eq!(bitline.try_rank_range_1(0, 9), None);
+    }
+
+    #[test]
     fn test_rank_operations() {
         // rank(index, true) is equivalent to rank_1(index)
         // rank(index, false) is equivalent to rank_0(index)
