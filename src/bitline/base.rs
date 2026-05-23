@@ -547,6 +547,108 @@ pub trait Bitline {
     /// ```
     fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize;
 
+    /// Access the specified position in the bit sequence, returning `None` if out of range.
+    ///
+    /// This is the non-panicking counterpart of [`access`](Self::access).
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.try_access(0), Some(false));
+    /// assert_eq!(bitline.try_access(3), Some(true));
+    /// assert_eq!(bitline.try_access(8), None);
+    /// ```
+    fn try_access(&self, index: usize) -> Option<bool> {
+        if index < Self::length() {
+            Some(self.access(index))
+        } else {
+            None
+        }
+    }
+
+    /// Count how many times 0 appears up to the index, returning `None` if out of range.
+    ///
+    /// This is the non-panicking counterpart of [`rank_0`](Self::rank_0).
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.try_rank_0(2), Some(2));
+    /// assert_eq!(bitline.try_rank_0(8), Some(4));
+    /// assert_eq!(bitline.try_rank_0(9), None);
+    /// ```
+    fn try_rank_0(&self, index: usize) -> Option<usize> {
+        if index <= Self::length() {
+            Some(self.rank_0(index))
+        } else {
+            None
+        }
+    }
+
+    /// Count how many times 1 appears up to the index, returning `None` if out of range.
+    ///
+    /// This is the non-panicking counterpart of [`rank_1`](Self::rank_1).
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.try_rank_1(4), Some(1));
+    /// assert_eq!(bitline.try_rank_1(8), Some(4));
+    /// assert_eq!(bitline.try_rank_1(9), None);
+    /// ```
+    fn try_rank_1(&self, index: usize) -> Option<usize> {
+        if index <= Self::length() {
+            Some(self.rank_1(index))
+        } else {
+            None
+        }
+    }
+
+    /// Count how many times 0 appears in the range, returning `None` if the range is invalid.
+    ///
+    /// Returns `None` if `begin > end` or `end > length`. This is the non-panicking counterpart
+    /// of [`rank_range_0`](Self::rank_range_0).
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.try_rank_range_0(0, 4), Some(3));
+    /// assert_eq!(bitline.try_rank_range_0(5, 3), None);
+    /// assert_eq!(bitline.try_rank_range_0(0, 9), None);
+    /// ```
+    fn try_rank_range_0(&self, begin: usize, end: usize) -> Option<usize> {
+        if begin <= end && end <= Self::length() {
+            Some(self.rank_range_0(begin, end))
+        } else {
+            None
+        }
+    }
+
+    /// Count how many times 1 appears in the range, returning `None` if the range is invalid.
+    ///
+    /// Returns `None` if `begin > end` or `end > length`. This is the non-panicking counterpart
+    /// of [`rank_range_1`](Self::rank_range_1).
+    ///
+    /// # Examples
+    /// ```
+    /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// let bitline = 0b00011110_u8;
+    /// assert_eq!(bitline.try_rank_range_1(0, 4), Some(1));
+    /// assert_eq!(bitline.try_rank_range_1(5, 3), None);
+    /// assert_eq!(bitline.try_rank_range_1(0, 9), None);
+    /// ```
+    fn try_rank_range_1(&self, begin: usize, end: usize) -> Option<usize> {
+        if begin <= end && end <= Self::length() {
+            Some(self.rank_range_1(begin, end))
+        } else {
+            None
+        }
+    }
+
     /// Find the position where the `nth`-th 0 appears (`nth` is 0-indexed: 0 = first match).
     /// If there is no such 0, return None.
     ///
