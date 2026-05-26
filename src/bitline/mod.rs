@@ -1,3 +1,7 @@
+//! Bit-manipulation predicates and operations for integer primitives.
+//!
+//! See also: [`crate::matrix`] for bit matrix transposition over the same integer types.
+
 mod base;
 mod uints;
 // re-export
