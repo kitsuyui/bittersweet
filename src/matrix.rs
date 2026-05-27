@@ -1,3 +1,7 @@
+//! Bit matrix transposition operations for integer primitive arrays.
+//!
+//! See also: [`crate::bitline`] for bit-manipulation predicates over the same integer types.
+
 #[inline]
 pub fn transpose8x8_u64(n: u64) -> u64 {
     let m = (n ^ (n >> 7)) & 0x00aa00aa00aa00aa;
