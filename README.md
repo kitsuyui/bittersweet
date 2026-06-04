@@ -64,6 +64,8 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 
 - `as_empty`
 - `as_full`
+- `mask_01`
+- `mask_10`
 - `by_range`
 - `bytes_length`
 - `length`
@@ -94,6 +96,21 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 - `bit_reversal_permutation_to_bin`
 - `bin_to_bit_reversal_permutation`
 - `two_bits_gray_code_rotation`
+- `access`
+- `rank_0`
+- `rank_1`
+- `rank`
+- `rank_range_0`
+- `rank_range_1`
+- `rank_range`
+- `try_access`
+- `try_rank_0`
+- `try_rank_1`
+- `try_rank_range_0`
+- `try_rank_range_1`
+- `select_0`
+- `select_1`
+- `select`
 
 ## License
 
