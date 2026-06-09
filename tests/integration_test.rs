@@ -56,13 +56,7 @@ fn bitline_gray_code_roundtrip() {
 #[test]
 fn matrix_transpose8x8_identity() {
     let identity: [u8; 8] = [
-        0b10000000,
-        0b01000000,
-        0b00100000,
-        0b00010000,
-        0b00001000,
-        0b00000100,
-        0b00000010,
+        0b10000000, 0b01000000, 0b00100000, 0b00010000, 0b00001000, 0b00000100, 0b00000010,
         0b00000001,
     ];
     assert_eq!(matrix::transpose8x8(identity), identity);
