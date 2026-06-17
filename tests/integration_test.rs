@@ -2,6 +2,7 @@ use bittersweet::bitline::Bitline;
 use bittersweet::matrix;
 
 #[test]
+#[allow(deprecated)]
 fn bitline_empty_and_full() {
     assert!(u8::as_empty().is_empty());
     assert!(!u8::as_empty().is_not_empty());

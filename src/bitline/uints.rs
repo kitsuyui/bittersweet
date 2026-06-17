@@ -76,16 +76,8 @@ macro_rules! impl_Bitline {
                 *self == Self::as_empty()
             }
             #[inline]
-            fn is_not_empty(&self) -> bool {
-                !self.is_empty()
-            }
-            #[inline]
             fn is_full(&self) -> bool {
                 *self == Self::as_full()
-            }
-            #[inline]
-            fn is_not_full(&self) -> bool {
-                !self.is_full()
             }
             #[inline]
             fn first_index(&self) -> Option<usize> {
@@ -579,6 +571,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_is_empty() {
         assert!(u8::as_empty().is_empty());
         assert!(u16::as_empty().is_empty());
@@ -596,6 +589,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_is_full() {
         assert!(u8::as_full().is_full());
         assert!(u16::as_full().is_full());
