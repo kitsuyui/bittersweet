@@ -48,7 +48,7 @@ pub trait Bitline {
     /// ```
     /// # Panics
     ///
-    /// Panics if `begin > end`.
+    /// Panics if `begin > end` or if `end` is greater than the bitline length.
     fn by_range(begin: usize, end: usize) -> Self;
 
     /// Return true if the bit is filled with zero.
@@ -314,7 +314,7 @@ pub trait Bitline {
     /// ```
     /// # Panics
     ///
-    /// Panics if `begin > end`.
+    /// Panics if `begin > end` or if `end` is greater than the bitline length.
     fn range(&self, begin: usize, end: usize) -> Self;
 
     /// Return the standing bits not included by the given range.
