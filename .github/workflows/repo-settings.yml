@@ -14,47 +14,9 @@ jobs:
     name: Verify merge automation settings
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Check repository settings
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-        run: |
-          settings=$(gh api "repos/${REPO}" \
-            --jq '{
-              allow_auto_merge,
-              allow_update_branch,
-              delete_branch_on_merge,
-              allow_squash_merge,
-              allow_rebase_merge
-            }')
-
-          echo "Current settings:"
-          echo "$settings" | jq .
-
-          failures=0
-
-          check() {
-            local field="$1"
-            local expected="$2"
-            local actual
-            actual=$(echo "$settings" | jq -r ".$field")
-            if [ "$actual" != "$expected" ]; then
-              echo "FAIL: $field expected=$expected actual=$actual"
-              failures=$((failures + 1))
-            else
-              echo "OK:   $field=$actual"
-            fi
-          }
-
-          check allow_auto_merge     true
-          check allow_update_branch  true
-          check delete_branch_on_merge true
-          check allow_squash_merge   true
-          check allow_rebase_merge   true
-
-          if [ "$failures" -gt 0 ]; then
-            echo ""
-            echo "${failures} setting(s) have drifted from the expected state."
-            echo "Update them via: gh api repos/${REPO} --method PATCH --field <field>=<value>"
-            exit 1
-          fi
+        run: bash scripts/check-repo-settings.sh
