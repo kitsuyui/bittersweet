@@ -27,6 +27,17 @@ $ cargo add bittersweet
 
 Or you can add this to your `Cargo.toml` manually.
 
+For `no_std` environments, disable the default `std` feature:
+
+```toml
+[dependencies]
+bittersweet = { version = "0.2", default-features = false }
+```
+
+The crate enables `std` by default. With `default-features = false`, the core
+bitline traits and integer implementations remain available without linking the
+standard library. Re-enable `std` when you need APIs gated behind that feature.
+
 ### Example
 
 ```rust
