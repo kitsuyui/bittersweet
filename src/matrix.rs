@@ -1,7 +1,31 @@
 //! Bit matrix transposition operations for integer primitive arrays.
 //!
+//! # Bit representation convention
+//!
+//! All functions in this module share the same bit-to-matrix mapping:
+//!
+//! - **Row**: each array element (or, for [`transpose8x8_u64`], each byte of the `u64`
+//!   in big-endian order) represents one row of the matrix.
+//! - **Column**: bit positions within an element represent columns, with
+//!   **MSB (bit 7 of a `u8`, bit 15 of a `u16`, …) = column 0**.
+//!
+//! This is the same MSB-first index convention used by [`crate::bitline`].
+//!
+//! # Example
+//!
+//! For an 8×8 matrix, `row[0] = 0b10000000u8` means only column 0 of row 0 is set.
+//! After transposition, only row 0 of column 0 is set, so `result[0] = 0b10000000u8`.
+//!
 //! See also: [`crate::bitline`] for bit-manipulation predicates over the same integer types.
 
+/// Transpose an 8×8 bit matrix packed into a single `u64`.
+///
+/// The matrix is packed in big-endian byte order: the most-significant byte is row 0,
+/// the least-significant byte is row 7. Within each byte, MSB = column 0.
+///
+/// This is equivalent to [`transpose8x8`] but avoids the overhead of converting to and
+/// from a `[u8; 8]` array. The two functions operate on the same logical bit matrix;
+/// to convert between representations use `u64::from_be_bytes` / `u64::to_be_bytes`.
 #[inline]
 pub fn transpose8x8_u64(n: u64) -> u64 {
     let m = (n ^ (n >> 7)) & 0x00aa00aa00aa00aa;
@@ -13,6 +37,12 @@ pub fn transpose8x8_u64(n: u64) -> u64 {
     n ^ m ^ (m << 28)
 }
 
+/// Transpose an 8×8 bit matrix represented as an array of 8 bytes.
+///
+/// Element `a[i]` is row `i`. Within each byte, MSB = column 0.
+///
+/// See the [module-level documentation](self) for the full bit representation convention.
+/// For a packed `u64` alternative see [`transpose8x8_u64`].
 pub fn transpose8x8(mut a: [u8; 8]) -> [u8; 8] {
     let mut j: usize = 4;
     let mut k;
@@ -32,6 +62,11 @@ pub fn transpose8x8(mut a: [u8; 8]) -> [u8; 8] {
     a
 }
 
+/// Transpose a 16×16 bit matrix represented as an array of 16 `u16` values.
+///
+/// Element `a[i]` is row `i`. Within each `u16`, MSB = column 0.
+///
+/// See the [module-level documentation](self) for the full bit representation convention.
 pub fn transpose16x16(mut a: [u16; 16]) -> [u16; 16] {
     let mut j: usize = 8;
     let mut k;
@@ -51,6 +86,11 @@ pub fn transpose16x16(mut a: [u16; 16]) -> [u16; 16] {
     a
 }
 
+/// Transpose a 32×32 bit matrix represented as an array of 32 `u32` values.
+///
+/// Element `a[i]` is row `i`. Within each `u32`, MSB = column 0.
+///
+/// See the [module-level documentation](self) for the full bit representation convention.
 pub fn transpose32x32(mut a: [u32; 32]) -> [u32; 32] {
     let mut j: usize = 16;
     let mut k;
@@ -70,6 +110,11 @@ pub fn transpose32x32(mut a: [u32; 32]) -> [u32; 32] {
     a
 }
 
+/// Transpose a 64×64 bit matrix represented as an array of 64 `u64` values.
+///
+/// Element `a[i]` is row `i`. Within each `u64`, MSB = column 0.
+///
+/// See the [module-level documentation](self) for the full bit representation convention.
 pub fn transpose64x64(mut a: [u64; 64]) -> [u64; 64] {
     let mut j: usize = 32;
     let mut k;
@@ -89,6 +134,11 @@ pub fn transpose64x64(mut a: [u64; 64]) -> [u64; 64] {
     a
 }
 
+/// Transpose a 128×128 bit matrix represented as an array of 128 `u128` values.
+///
+/// Element `a[i]` is row `i`. Within each `u128`, MSB = column 0.
+///
+/// See the [module-level documentation](self) for the full bit representation convention.
 pub fn transpose128x128(mut a: [u128; 128]) -> [u128; 128] {
     let mut j: usize = 64;
     let mut k;
