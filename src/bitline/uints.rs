@@ -714,7 +714,7 @@ mod tests {
 
     #[test]
     fn test_to_gray_code_and_from_gray_code_is_reversible() {
-        for bitline in 0..255 {
+        for bitline in 0..=255 {
             let bitline = bitline as u8;
             assert_eq!(bitline.gray_code_to_bin().bin_to_gray_code(), bitline);
             assert_eq!(bitline.bin_to_gray_code().gray_code_to_bin(), bitline);
