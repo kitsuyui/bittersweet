@@ -76,16 +76,8 @@ macro_rules! impl_Bitline {
                 *self == Self::as_empty()
             }
             #[inline]
-            fn is_not_empty(&self) -> bool {
-                !self.is_empty()
-            }
-            #[inline]
             fn is_full(&self) -> bool {
                 *self == Self::as_full()
-            }
-            #[inline]
-            fn is_not_full(&self) -> bool {
-                !self.is_full()
             }
             #[inline]
             fn first_index(&self) -> Option<usize> {
@@ -579,6 +571,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_is_empty() {
         assert!(u8::as_empty().is_empty());
         assert!(u16::as_empty().is_empty());
@@ -596,6 +589,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(deprecated)]
     fn test_is_full() {
         assert!(u8::as_full().is_full());
         assert!(u16::as_full().is_full());
@@ -798,13 +792,30 @@ mod tests {
         assert_eq!(0b00000000_u8.two_bits_gray_code_rotation(), 0b01010101_u8);
         assert_eq!(0b01000001_u8.two_bits_gray_code_rotation(), 0b11010111_u8);
         assert_eq!(0b10100010_u8.two_bits_gray_code_rotation(), 0b00000100_u8);
-        // 3 times rotation is the same as no rotation.
-        assert_bijection(|bitline| {
-            bitline
+        assert_bijection(|bitline| bitline.two_bits_gray_code_rotation());
+
+        // Four rotations restore every two-bit pair to its original value.
+        for bitline in 0..=u8::MAX {
+            assert_eq!(
+                bitline
+                    .two_bits_gray_code_rotation()
+                    .two_bits_gray_code_rotation()
+                    .two_bits_gray_code_rotation()
+                    .two_bits_gray_code_rotation(),
+                bitline
+            );
+        }
+    }
+
+    #[test]
+    fn test_two_bits_gray_code_rotation_three_steps_is_not_identity() {
+        assert_ne!(
+            0b00000000_u8
                 .two_bits_gray_code_rotation()
                 .two_bits_gray_code_rotation()
-                .two_bits_gray_code_rotation()
-        });
+                .two_bits_gray_code_rotation(),
+            0b00000000_u8
+        );
     }
 
     #[test]

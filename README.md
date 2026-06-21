@@ -70,9 +70,9 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 - `bytes_length`
 - `length`
 - `is_empty`
-- `is_not_empty`
+- `is_not_empty` *(deprecated since 0.2.1 — use `!is_empty()` instead)*
 - `is_full`
-- `is_not_full`
+- `is_not_full` *(deprecated since 0.2.1 — use `!is_full()` instead)*
 - `first_index`
 - `last_index`
 - `radius`

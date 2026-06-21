@@ -61,13 +61,26 @@ pub trait Bitline {
     fn is_empty(&self) -> bool;
 
     /// Return true if the bit is not filled with zero.
+    ///
+    /// # Deprecation
+    ///
+    /// Use `!x.is_empty()` instead. Negated predicate methods are not idiomatic
+    /// in Rust (the standard library does not expose `is_not_empty()` on
+    /// `BTreeSet`, `Vec`, or `String`). This method will be removed in a future
+    /// release.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// #[allow(deprecated)]
     /// assert!(0b00111000_u8.is_not_empty());
+    /// #[allow(deprecated)]
     /// assert!(!0b00000000_u8.is_not_empty());
     /// ```
-    fn is_not_empty(&self) -> bool;
+    #[deprecated(since = "0.2.1", note = "use !is_empty() instead")]
+    fn is_not_empty(&self) -> bool {
+        !self.is_empty()
+    }
 
     /// Return true if the bit is filled with one.
     /// # Examples
@@ -79,13 +92,25 @@ pub trait Bitline {
     fn is_full(&self) -> bool;
 
     /// Return true if the bit is not filled with one.
+    ///
+    /// # Deprecation
+    ///
+    /// Use `!x.is_full()` instead. Negated predicate methods are not idiomatic
+    /// in Rust (the standard library does not expose `is_not_full()` equivalents).
+    /// This method will be removed in a future release.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
+    /// #[allow(deprecated)]
     /// assert!((0b01111111 as Bitline8).is_not_full());
+    /// #[allow(deprecated)]
     /// assert!(!(0b11111111 as Bitline8).is_not_full());
     /// ```
-    fn is_not_full(&self) -> bool;
+    #[deprecated(since = "0.2.1", note = "use !is_full() instead")]
+    fn is_not_full(&self) -> bool {
+        !self.is_full()
+    }
 
     /// Return the first bit index that is set to one.
     /// If there is no bit set to one, return None.
@@ -413,7 +438,6 @@ pub trait Bitline {
     ///
     /// 0b00 -> 0b01
     /// 0b01 -> 0b11
-    /// 0b10 -> 0b00
     /// 0b11 -> 0b10
     /// 0b10 -> 0b00
     ///
