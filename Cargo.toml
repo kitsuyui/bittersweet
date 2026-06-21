@@ -6,6 +6,8 @@ description = "Add more intentional predicates to bitwise calcs."
 license = "BSD-3-Clause"
 edition = "2021"
 categories = ["no-std"]
+keywords = ["bitwise", "bit-operations", "predicates"]
+repository = "https://github.com/kitsuyui/bittersweet"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
