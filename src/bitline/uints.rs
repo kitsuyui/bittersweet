@@ -58,8 +58,9 @@ macro_rules! impl_Bitline {
             fn by_range(begin: usize, end: usize) -> Self {
                 assert!(begin <= end, "inverted range: begin must be <= end");
                 let bits_size = Self::BITS as usize;
-                let last_index = cmp::min(end, bits_size);
-                let first_index = cmp::min(begin, last_index);
+                assert!(end <= bits_size, "end index out of range");
+                let last_index = end;
+                let first_index = begin;
                 let size = last_index - first_index;
                 if (size == 0) {
                     return Self::as_empty();

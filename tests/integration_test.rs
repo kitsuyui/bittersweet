@@ -17,6 +17,18 @@ fn bitline_by_range() {
 }
 
 #[test]
+#[should_panic(expected = "end index out of range")]
+fn bitline_by_range_panics_when_end_exceeds_length() {
+    let _: u8 = Bitline::by_range(0, 9);
+}
+
+#[test]
+#[should_panic(expected = "end index out of range")]
+fn bitline_range_panics_when_end_exceeds_length() {
+    let _ = 0b11111111_u8.range(0, 9);
+}
+
+#[test]
 fn bitline_first_and_last_index() {
     let b = 0b00111000_u8;
     assert_eq!(b.first_index(), Some(2));
