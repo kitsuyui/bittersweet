@@ -26,6 +26,10 @@ jobs:
       - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
       - run: cargo build --release --all-features
 
+      - name: Check version matches release tag
+        if: github.event_name == 'release'
+        run: bash scripts/check-version.sh "${{ github.event.release.tag_name }}"
+
       - name: publish (dry-run)
         if: github.event_name == 'release' && github.event.release.prerelease
         run: cargo publish --dry-run --allow-dirty
