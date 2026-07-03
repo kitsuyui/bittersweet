@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.3.0 - 2026-06-18
+
+### Added
+
+- Add non-panicking variants for index-based access methods: `try_access`,
+  `try_rank_0`, `try_rank_1`, `try_rank_range_0`, `try_rank_range_1`.
+
+### Fixed
+
+- Reject inverted bit ranges (`begin > end`) in `by_range` and `range`
+  instead of returning a silently empty result.
+- Panic when the `end` index in `by_range` or `range` exceeds the bitline
+  length instead of silently clamping to the bitline boundary.
+
+### Changed
+
+- Document that rotation distance is normalised modulo the bitline width.
+
+### Docs
+
+- Add cross-references between the `matrix` and `bitline` modules.
+- Complete the list of `Bitline` trait manipulations in the README.
+
 ## 0.2.0 - 2026-05-14
 
 ### Added
