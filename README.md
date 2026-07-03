@@ -58,6 +58,16 @@ See [docs.rs](https://docs.rs/bittersweet/latest/bittersweet/)
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
+## Bit indexing
+
+Bitline position APIs use MSB-first indexing. Index `0` is the most significant
+bit, shown at the left edge of a binary literal or `bit_repr()`. The last valid
+index is the least significant bit.
+
+Range arguments use the same ordering and follow Rust's half-open convention:
+`[begin, end)`. For example, `0b10000000_u8.access(0)` is `true`, and
+`Bitline8::by_range(2, 5)` returns `0b00111000_u8`.
+
 ## Manipulations
 
 https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html

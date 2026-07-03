@@ -7,6 +7,12 @@ use std::prelude::v1::*;
 
 use core::option::Option;
 
+/// Bit-manipulation predicates and operations over a fixed-width bit sequence.
+///
+/// Position arguments use MSB-first indexing: index `0` is the most significant
+/// bit, shown at the left edge of a binary literal or `bit_repr()`. Index
+/// `Self::length() - 1` is the least significant bit. Range arguments use the
+/// same ordering and follow Rust's half-open convention: `[begin, end)`.
 pub trait Bitline {
     /// Return the bits all set to 0
     /// # Examples
@@ -40,7 +46,10 @@ pub trait Bitline {
     /// ```
     fn mask_10() -> Self;
 
-    /// Return the bits standing in the given range.
+    /// Return the bits standing in the given half-open MSB-first range.
+    ///
+    /// `begin` is included and `end` is excluded.
+    ///
     /// # Examples
     /// ```
     /// use bittersweet::bitline::{Bitline, Bitline8};
@@ -455,7 +464,9 @@ pub trait Bitline {
     /// ```
     fn two_bits_gray_code_rotation(&self) -> Self;
 
-    /// Access the specified position in the bit sequence and get the value of the bit.
+    /// Access the specified MSB-first position and get the value of the bit.
+    ///
+    /// Index `0` is the most significant bit.
     ///
     /// # Examples
     /// ```
@@ -466,6 +477,7 @@ pub trait Bitline {
     /// assert_eq!(bitline.access(2), false);
     /// assert_eq!(bitline.access(3), true);
     /// assert_eq!(bitline.access(4), true);
+    /// assert_eq!(0b10000000_u8.access(0), true);
     /// ```
     ///
     /// # Panics
@@ -473,7 +485,10 @@ pub trait Bitline {
     /// Panics if `index` is greater than or equal to the bitline length.
     fn access(&self, index: usize) -> bool;
 
-    /// Count how many times 0 appears up to the index (i-th) position.
+    /// Count how many times 0 appears before the given MSB-first index.
+    ///
+    /// The count covers the half-open range `[0, index)`, so `index == 0`
+    /// always returns `0` and `index == Self::length()` counts the whole bitline.
     ///
     /// # Examples
     /// ```
@@ -490,7 +505,10 @@ pub trait Bitline {
     /// Panics if `index` is greater than the bitline length.
     fn rank_0(&self, index: usize) -> usize;
 
-    /// Count how many times 1 appears up to the index (i-th) position.
+    /// Count how many times 1 appears before the given MSB-first index.
+    ///
+    /// The count covers the half-open range `[0, index)`, so `index == 0`
+    /// always returns `0` and `index == Self::length()` counts the whole bitline.
     ///
     /// # Examples
     /// ```
@@ -512,7 +530,10 @@ pub trait Bitline {
     /// Panics if `index` is greater than the bitline length.
     fn rank_1(&self, index: usize) -> usize;
 
-    /// Count how many times specified bit appears up to the index (i-th) position.
+    /// Count how many times the specified bit appears before the given MSB-first index.
+    ///
+    /// The count covers the half-open range `[0, index)`, so `index == 0`
+    /// always returns `0` and `index == Self::length()` counts the whole bitline.
     ///
     /// # Examples
     /// ```
@@ -529,7 +550,9 @@ pub trait Bitline {
     /// Panics if `index` is greater than the bitline length.
     fn rank(&self, index: usize, bit: bool) -> usize;
 
-    /// Count how many times 0 appears between the begin (i-th) and the end (j-th) positions.
+    /// Count how many times 0 appears in the given half-open MSB-first range.
+    ///
+    /// `begin` is included and `end` is excluded.
     ///
     /// # Examples
     /// ```
@@ -545,7 +568,9 @@ pub trait Bitline {
     /// Panics if `begin > end` or if `end` is greater than the bitline length.
     fn rank_range_0(&self, begin: usize, end: usize) -> usize;
 
-    /// Count how many times 1 appears between the begin (i-th) and the end (j-th) positions.
+    /// Count how many times 1 appears in the given half-open MSB-first range.
+    ///
+    /// `begin` is included and `end` is excluded.
     ///
     /// # Examples
     /// ```
@@ -562,7 +587,9 @@ pub trait Bitline {
     /// Panics if `begin > end` or if `end` is greater than the bitline length.
     fn rank_range_1(&self, begin: usize, end: usize) -> usize;
 
-    /// Count how many times specified bit appears between the begin (i-th) and the end (j-th) positions.
+    /// Count how many times the specified bit appears in the given half-open MSB-first range.
+    ///
+    /// `begin` is included and `end` is excluded.
     ///
     /// # Examples
     /// ```
