@@ -408,6 +408,37 @@ mod tests {
     }
 
     #[test]
+    fn test_by_range_near_full_width_for_wide_uints() {
+        macro_rules! assert_by_range_boundaries {
+            ($t:ty) => {{
+                let width = <$t>::length();
+                assert_eq!(<$t>::by_range(0, width), <$t>::MAX);
+                assert_eq!(<$t>::by_range(1, width), <$t>::MAX >> 1);
+                assert_eq!(<$t>::by_range(0, width - 1), <$t>::MAX << 1);
+                assert_eq!(<$t>::by_range(width - 1, width), 1 as $t);
+                assert_eq!(<$t>::by_range(0, 0), 0 as $t);
+            }};
+        }
+
+        assert_by_range_boundaries!(u16);
+        assert_by_range_boundaries!(u32);
+        assert_by_range_boundaries!(u64);
+        assert_by_range_boundaries!(u128);
+    }
+
+    #[test]
+    fn test_wide_uint_apis_reuse_by_range_boundaries() {
+        let u16_msb = u16::by_range(0, 1);
+        assert_eq!(u16_msb.filled_first_bit_to_last_bit(), u16_msb);
+        assert_eq!(u16::MAX.range(1, u16::length()), u16::MAX >> 1);
+
+        let u128_edge_bits =
+            u128::by_range(0, 1) | u128::by_range(u128::length() - 1, u128::length());
+        assert_eq!(u128_edge_bits.filled_first_bit_to_last_bit(), u128::MAX);
+        assert_eq!(u128::MAX.range(0, u128::length() - 1), u128::MAX << 1);
+    }
+
+    #[test]
     #[should_panic(expected = "inverted range")]
     fn test_by_range_panics_on_inverted_range() {
         let _ = u8::by_range(5, 3);
