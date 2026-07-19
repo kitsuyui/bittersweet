@@ -5,6 +5,7 @@ authors = ["Yui Kitsu <kitsuyui+github@kitsuyui.com>"]
 description = "Add more intentional predicates to bitwise calcs."
 license = "BSD-3-Clause"
 edition = "2021"
+rust-version = "1.56"
 repository = "https://github.com/kitsuyui/bittersweet"
 keywords = ["bitwise", "bit-manipulation", "bitmap"]
 categories = ["no-std"]

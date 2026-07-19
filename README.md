@@ -38,6 +38,11 @@ The crate enables `std` by default. With `default-features = false`, the core
 bitline traits and integer implementations remain available without linking the
 standard library. Re-enable `std` when you need APIs gated behind that feature.
 
+### Minimum Supported Rust Version
+
+`bittersweet` supports Rust 1.56 and newer. This is the first stable release
+with Rust 2021 edition support, which matches the crate's edition setting.
+
 ### Example
 
 ```rust
