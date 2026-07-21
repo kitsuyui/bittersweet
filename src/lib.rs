@@ -9,6 +9,6 @@ mod tests {
     #[test]
     fn test_basis() {
         use crate::bitline::Bitline;
-        assert_eq!(u8::as_empty().bit_repr(), "0".repeat(8));
+        assert!(u8::as_empty().is_empty());
     }
 }

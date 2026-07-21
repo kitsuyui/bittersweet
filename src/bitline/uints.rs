@@ -352,11 +352,10 @@ impl_Bitline!(Bitline128, 128);
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use super::*;
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_as_empty() {
         assert_eq!(u8::as_empty().bit_repr(), "0".repeat(8));
         assert_eq!(u16::as_empty().bit_repr(), "0".repeat(16));
@@ -366,6 +365,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_as_full() {
         assert_eq!(u8::as_full().bit_repr(), "1".repeat(8));
         assert_eq!(u16::as_full().bit_repr(), "1".repeat(16));
@@ -375,6 +375,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_mask() {
         assert_eq!(u8::mask_01().bit_repr(), "01010101");
         assert_eq!(u8::mask_10().bit_repr(), "10101010");
@@ -642,6 +643,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_bin_repr() {
         assert_eq!(0b11110000_u8.bit_repr(), "11110000");
     }
@@ -729,18 +731,21 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_bin_to_gray_code_is_bijection() {
         // gray code is bijection. no collision.
         assert_bijection(|bitline| bitline.bin_to_gray_code());
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_gray_code_to_bin_is_bijection() {
         // gray code is bijection. no collision.
         assert_bijection(|bitline| bitline.gray_code_to_bin());
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_bin_to_bit_reversal_permutation() {
         assert_eq!(
             0b00000000_u8.bin_to_bit_reversal_permutation(),
@@ -777,18 +782,21 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_to_bit_reversal_permutation_is_bijection() {
         // bit reversal permutation is bijection. no collision.
         assert_bijection(|bitline| bitline.bin_to_bit_reversal_permutation());
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_from_bit_reversal_permutation_is_bijection() {
         // bit reversal permutation is bijection. no collision.
         assert_bijection(|bitline| bitline.bit_reversal_permutation_to_bin());
     }
 
     #[test]
+    #[cfg(feature = "std")]
     fn test_two_bits_gray_code_rotation() {
         assert_eq!(0b00000000_u8.two_bits_gray_code_rotation(), 0b01010101_u8);
         assert_eq!(0b01000001_u8.two_bits_gray_code_rotation(), 0b11010111_u8);
@@ -968,7 +976,10 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "std")]
     fn assert_bijection(function: fn(u8) -> u8) {
+        use std::collections::HashMap;
+
         // bijection means no collision.
         let mut counter = HashMap::new();
         for bitline in 0..256 {
