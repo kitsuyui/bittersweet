@@ -86,7 +86,10 @@ pub trait Bitline {
     /// #[allow(deprecated)]
     /// assert!(!0b00000000_u8.is_not_empty());
     /// ```
-    #[deprecated(since = "0.2.1", note = "use !is_empty() instead")]
+    #[deprecated(
+        since = "0.2.1",
+        note = "use !is_empty() instead; scheduled for removal in 0.4.0"
+    )]
     fn is_not_empty(&self) -> bool {
         !self.is_empty()
     }
@@ -105,9 +108,9 @@ pub trait Bitline {
     /// # Deprecation
     ///
     /// Use `!x.is_full()` instead. Negated predicate methods are not idiomatic
-    /// in Rust (the standard library does not expose `is_not_full()` equivalents).
-    /// This deprecated alias remains available throughout the 0.3.x line and is
-    /// scheduled for removal in 0.4.0.
+    /// in Rust (the standard library does not expose `is_not_full()`
+    /// equivalents). This deprecated alias remains available throughout the
+    /// 0.3.x line and is scheduled for removal in 0.4.0.
     ///
     /// # Examples
     /// ```
@@ -117,7 +120,10 @@ pub trait Bitline {
     /// #[allow(deprecated)]
     /// assert!(!(0b11111111 as Bitline8).is_not_full());
     /// ```
-    #[deprecated(since = "0.2.1", note = "use !is_full() instead")]
+    #[deprecated(
+        since = "0.2.1",
+        note = "use !is_full() instead; scheduled for removal in 0.4.0"
+    )]
     fn is_not_full(&self) -> bool {
         !self.is_full()
     }

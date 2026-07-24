@@ -2,11 +2,16 @@ use bittersweet::bitline::Bitline;
 use bittersweet::matrix;
 
 #[test]
-fn bitline_empty_and_full() {
+fn bitline_empty_and_full_predicates() {
     assert!(u8::as_empty().is_empty());
-    assert!(!u8::as_empty().is_full());
     assert!(u8::as_full().is_full());
-    assert!(!u8::as_full().is_empty());
+}
+
+#[test]
+#[allow(deprecated)]
+fn bitline_deprecated_predicates_remain_compatible_until_0_4_0() {
+    assert!(!u8::as_empty().is_not_empty());
+    assert!(!u8::as_full().is_not_full());
 }
 
 #[test]
