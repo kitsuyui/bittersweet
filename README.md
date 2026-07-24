@@ -74,6 +74,13 @@ See [docs.rs](https://docs.rs/bittersweet/latest/bittersweet/)
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
+## Deprecated API lifecycle
+
+`is_not_empty` and `is_not_full` were deprecated in 0.2.1. They remain
+available throughout the 0.3.x line so downstream users can migrate to
+`!is_empty()` and `!is_full()` without an immediate break. Both aliases are
+scheduled for removal in 0.4.0.
+
 ## Bit indexing
 
 Bitline position APIs use MSB-first indexing. Index `0` is the most significant
@@ -96,9 +103,9 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 - `bytes_length`
 - `length`
 - `is_empty`
-- `is_not_empty` *(deprecated since 0.2.1 — use `!is_empty()` instead)*
+- `is_not_empty` *(deprecated since 0.2.1 — use `!is_empty()` instead; scheduled for removal in 0.4.0)*
 - `is_full`
-- `is_not_full` *(deprecated since 0.2.1 — use `!is_full()` instead)*
+- `is_not_full` *(deprecated since 0.2.1 — use `!is_full()` instead; scheduled for removal in 0.4.0)*
 - `first_index`
 - `last_index`
 - `radius`

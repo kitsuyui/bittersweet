@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Publish the deprecation lifecycle for `is_not_empty` and `is_not_full`: both
+  aliases remain available throughout the 0.3.x line and are scheduled for
+  removal in 0.4.0.
+
 ## 0.3.0 - 2026-06-18
 
 ### Added
