@@ -75,8 +75,8 @@ pub trait Bitline {
     ///
     /// Use `!x.is_empty()` instead. Negated predicate methods are not idiomatic
     /// in Rust (the standard library does not expose `is_not_empty()` on
-    /// `BTreeSet`, `Vec`, or `String`). This method will be removed in a future
-    /// release.
+    /// `BTreeSet`, `Vec`, or `String`). This deprecated alias remains available
+    /// throughout the 0.3.x line and is scheduled for removal in 0.4.0.
     ///
     /// # Examples
     /// ```
@@ -106,7 +106,8 @@ pub trait Bitline {
     ///
     /// Use `!x.is_full()` instead. Negated predicate methods are not idiomatic
     /// in Rust (the standard library does not expose `is_not_full()` equivalents).
-    /// This method will be removed in a future release.
+    /// This deprecated alias remains available throughout the 0.3.x line and is
+    /// scheduled for removal in 0.4.0.
     ///
     /// # Examples
     /// ```
