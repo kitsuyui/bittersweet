@@ -31,7 +31,7 @@ For `no_std` environments, disable the default `std` feature:
 
 ```toml
 [dependencies]
-bittersweet = { version = "0.2", default-features = false }
+bittersweet = { version = "0.3", default-features = false }
 ```
 
 The crate enables `std` by default. With `default-features = false`, the core
