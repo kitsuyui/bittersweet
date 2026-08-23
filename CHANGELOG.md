@@ -6,6 +6,10 @@
 
 - Clarify that the deprecated `is_not_empty` and `is_not_full` aliases remain
   available through the 0.3.x series and are scheduled for removal in 0.4.0.
+- Deprecate `rank(index, bit)`, `rank_range(begin, end, bit)`, `try_rank(index,
+  bit)`, and `try_rank_range(begin, end, bit)` in favor of the explicit `_0` /
+  `_1` variants, while keeping the aliases available through the 0.3.x series
+  and scheduling removal in 0.4.0.
 
 ## 0.3.0 - 2026-06-18
 
