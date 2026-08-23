@@ -263,15 +263,6 @@ macro_rules! impl_Bitline {
             }
 
             #[inline]
-            fn rank(&self, index: usize, bit: bool) -> usize {
-                if bit {
-                    self.rank_1(index)
-                } else {
-                    self.rank_0(index)
-                }
-            }
-
-            #[inline]
             fn rank_range_0(&self, begin: usize, end: usize) -> usize {
                 assert!(begin <= end, "inverted range: begin must be ≤ end");
                 assert!(end <= Self::length(), "end index out of range");
@@ -289,15 +280,6 @@ macro_rules! impl_Bitline {
                 let mask_end = Self::by_range(end, Self::length());
                 let mask = mask_begin | mask_end;
                 (*self & !mask).count_ones() as usize
-            }
-
-            #[inline]
-            fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize {
-                if bit {
-                    self.rank_range_1(begin, end)
-                } else {
-                    self.rank_range_0(begin, end)
-                }
             }
 
             #[inline]
@@ -954,6 +936,30 @@ mod tests {
 
     #[test]
     fn test_rank_operations() {
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            for i in 0..8 {
+                assert_eq!(
+                    bitline.rank_1(i as usize) + bitline.rank_0(i as usize),
+                    i as usize
+                );
+            }
+        }
+
+        for bitline in 0..256 {
+            let bitline = bitline as u8;
+            for i in 0..8 {
+                assert_eq!(
+                    bitline.rank_range_1(0, i as usize) + bitline.rank_range_0(0, i as usize),
+                    i as usize
+                );
+            }
+        }
+    }
+
+    #[test]
+    #[allow(deprecated)]
+    fn test_deprecated_bool_dispatch_rank_aliases_remain_compatible_until_0_4_0() {
         // rank(index, true) is equivalent to rank_1(index)
         // rank(index, false) is equivalent to rank_0(index)
         for bitline in 0..256 {
@@ -975,6 +981,22 @@ mod tests {
                 assert_eq!(
                     bitline.rank_range(0, i as usize, false),
                     bitline.rank_range_0(0, i as usize)
+                );
+                assert_eq!(
+                    bitline.try_rank(i as usize, true),
+                    bitline.try_rank_1(i as usize)
+                );
+                assert_eq!(
+                    bitline.try_rank(i as usize, false),
+                    bitline.try_rank_0(i as usize)
+                );
+                assert_eq!(
+                    bitline.try_rank_range(0, i as usize, true),
+                    bitline.try_rank_range_1(0, i as usize)
+                );
+                assert_eq!(
+                    bitline.try_rank_range(0, i as usize, false),
+                    bitline.try_rank_range_0(0, i as usize)
                 );
             }
         }

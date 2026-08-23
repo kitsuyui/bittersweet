@@ -539,6 +539,13 @@ pub trait Bitline {
 
     /// Count how many times the specified bit appears before the given MSB-first index.
     ///
+    /// # Deprecation
+    ///
+    /// Prefer [`rank_0`](Self::rank_0) and [`rank_1`](Self::rank_1) instead.
+    /// They make the counted bit explicit at the call site and are the canonical
+    /// rank APIs for the 0.3.x line. This bool-dispatch alias remains available
+    /// throughout the 0.3.x line and is scheduled for removal in 0.4.0.
+    ///
     /// The count covers the half-open range `[0, index)`, so `index == 0`
     /// always returns `0` and `index == Self::length()` counts the whole bitline.
     ///
@@ -555,7 +562,17 @@ pub trait Bitline {
     /// # Panics
     ///
     /// Panics if `index` is greater than the bitline length.
-    fn rank(&self, index: usize, bit: bool) -> usize;
+    #[deprecated(
+        since = "0.3.1",
+        note = "use rank_0() or rank_1() instead; scheduled for removal in 0.4.0"
+    )]
+    fn rank(&self, index: usize, bit: bool) -> usize {
+        if bit {
+            self.rank_1(index)
+        } else {
+            self.rank_0(index)
+        }
+    }
 
     /// Count how many times 0 appears in the given half-open MSB-first range.
     ///
@@ -596,6 +613,14 @@ pub trait Bitline {
 
     /// Count how many times the specified bit appears in the given half-open MSB-first range.
     ///
+    /// # Deprecation
+    ///
+    /// Prefer [`rank_range_0`](Self::rank_range_0) and
+    /// [`rank_range_1`](Self::rank_range_1) instead. They make the counted bit
+    /// explicit at the call site and are the canonical range-rank APIs for the
+    /// 0.3.x line. This bool-dispatch alias remains available throughout the
+    /// 0.3.x line and is scheduled for removal in 0.4.0.
+    ///
     /// `begin` is included and `end` is excluded.
     ///
     /// # Examples
@@ -611,7 +636,17 @@ pub trait Bitline {
     /// # Panics
     ///
     /// Panics if `begin > end` or if `end` is greater than the bitline length.
-    fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize;
+    #[deprecated(
+        since = "0.3.1",
+        note = "use rank_range_0() or rank_range_1() instead; scheduled for removal in 0.4.0"
+    )]
+    fn rank_range(&self, begin: usize, end: usize, bit: bool) -> usize {
+        if bit {
+            self.rank_range_1(begin, end)
+        } else {
+            self.rank_range_0(begin, end)
+        }
+    }
 
     /// Access the specified position in the bit sequence, returning `None` if out of range.
     ///
@@ -675,6 +710,14 @@ pub trait Bitline {
 
     /// Count how many times the specified bit appears up to the index, returning `None` if out of range.
     ///
+    /// # Deprecation
+    ///
+    /// Prefer [`try_rank_0`](Self::try_rank_0) and [`try_rank_1`](Self::try_rank_1)
+    /// instead. They make the counted bit explicit at the call site and are the
+    /// canonical non-panicking rank APIs for the 0.3.x line. This bool-dispatch
+    /// alias remains available throughout the 0.3.x line and is scheduled for
+    /// removal in 0.4.0.
+    ///
     /// Returns `None` if `index` is greater than the bitline length. This is the non-panicking
     /// counterpart of [`rank`](Self::rank).
     ///
@@ -687,9 +730,17 @@ pub trait Bitline {
     /// assert_eq!(bitline.try_rank(8, false), Some(4));
     /// assert_eq!(bitline.try_rank(9, false), None);
     /// ```
+    #[deprecated(
+        since = "0.3.1",
+        note = "use try_rank_0() or try_rank_1() instead; scheduled for removal in 0.4.0"
+    )]
     fn try_rank(&self, index: usize, bit: bool) -> Option<usize> {
         if index <= Self::length() {
-            Some(self.rank(index, bit))
+            if bit {
+                Some(self.rank_1(index))
+            } else {
+                Some(self.rank_0(index))
+            }
         } else {
             None
         }
@@ -739,6 +790,15 @@ pub trait Bitline {
 
     /// Count how many times the specified bit appears in the range, returning `None` if the range is invalid.
     ///
+    /// # Deprecation
+    ///
+    /// Prefer [`try_rank_range_0`](Self::try_rank_range_0) and
+    /// [`try_rank_range_1`](Self::try_rank_range_1) instead. They make the
+    /// counted bit explicit at the call site and are the canonical
+    /// non-panicking range-rank APIs for the 0.3.x line. This bool-dispatch
+    /// alias remains available throughout the 0.3.x line and is scheduled for
+    /// removal in 0.4.0.
+    ///
     /// Returns `None` if `begin > end` or `end > length`. This is the non-panicking counterpart
     /// of [`rank_range`](Self::rank_range).
     ///
@@ -751,9 +811,17 @@ pub trait Bitline {
     /// assert_eq!(bitline.try_rank_range(5, 3, false), None);
     /// assert_eq!(bitline.try_rank_range(0, 9, true), None);
     /// ```
+    #[deprecated(
+        since = "0.3.1",
+        note = "use try_rank_range_0() or try_rank_range_1() instead; scheduled for removal in 0.4.0"
+    )]
     fn try_rank_range(&self, begin: usize, end: usize, bit: bool) -> Option<usize> {
         if begin <= end && end <= Self::length() {
-            Some(self.rank_range(begin, end, bit))
+            if bit {
+                Some(self.rank_range_1(begin, end))
+            } else {
+                Some(self.rank_range_0(begin, end))
+            }
         } else {
             None
         }

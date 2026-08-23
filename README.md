@@ -81,6 +81,12 @@ available throughout the 0.3.x line so downstream users can migrate to
 `!is_empty()` and `!is_full()` without an immediate break. Both aliases are
 scheduled for removal in 0.4.0.
 
+`rank(index, bit)`, `rank_range(begin, end, bit)`, `try_rank(index, bit)`, and
+`try_rank_range(begin, end, bit)` are deprecated in 0.3.1. They remain
+available throughout the 0.3.x line so downstream users can migrate to the
+explicit `_0` / `_1` variants without an immediate break. These bool-dispatch
+aliases are scheduled for removal in 0.4.0.
+
 ## Bit indexing
 
 Bitline position APIs use MSB-first indexing. Index `0` is the most significant
@@ -132,15 +138,17 @@ https://docs.rs/bittersweet/latest/bittersweet/bitline/trait.Bitline.html
 - `access`
 - `rank_0`
 - `rank_1`
-- `rank`
+- `rank` *(deprecated since 0.3.1 — use `rank_0` / `rank_1` instead; retained through 0.3.x and scheduled for removal in 0.4.0)*
 - `rank_range_0`
 - `rank_range_1`
-- `rank_range`
+- `rank_range` *(deprecated since 0.3.1 — use `rank_range_0` / `rank_range_1` instead; retained through 0.3.x and scheduled for removal in 0.4.0)*
 - `try_access`
 - `try_rank_0`
 - `try_rank_1`
+- `try_rank` *(deprecated since 0.3.1 — use `try_rank_0` / `try_rank_1` instead; retained through 0.3.x and scheduled for removal in 0.4.0)*
 - `try_rank_range_0`
 - `try_rank_range_1`
+- `try_rank_range` *(deprecated since 0.3.1 — use `try_rank_range_0` / `try_rank_range_1` instead; retained through 0.3.x and scheduled for removal in 0.4.0)*
 - `select_0`
 - `select_1`
 - `select`
