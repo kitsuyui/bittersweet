@@ -163,7 +163,7 @@ macro_rules! impl_Bitline {
             }
             #[inline]
             fn includes(&self, other: Self) -> bool {
-                (self | other) - self == 0
+                other & !*self == Self::as_empty()
             }
             #[inline]
             fn overlaps(&self, other: Self) -> bool {
