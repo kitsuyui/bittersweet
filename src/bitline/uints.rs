@@ -1021,6 +1021,30 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_select_0_boundary_conditions() {
+        // empty bitline (all zeros): every position is a zero bit
+        assert_eq!(u8::as_empty().select_0(0), Some(0));
+        assert_eq!(u8::as_empty().select_0(7), Some(7));
+        // nth exceeds the number of zero bits available
+        assert_eq!(u8::as_empty().select_0(8), None);
+
+        // full bitline (all ones): there are no zero bits at all
+        assert_eq!(u8::as_full().select_0(0), None);
+    }
+
+    #[test]
+    fn test_select_1_boundary_conditions() {
+        // full bitline (all ones): every position is a one bit
+        assert_eq!(u8::as_full().select_1(0), Some(0));
+        assert_eq!(u8::as_full().select_1(7), Some(7));
+        // nth exceeds the number of one bits available
+        assert_eq!(u8::as_full().select_1(8), None);
+
+        // empty bitline (all zeros): there are no one bits at all
+        assert_eq!(u8::as_empty().select_1(0), None);
+    }
+
     fn assert_bijection(function: fn(u8) -> u8) {
         // bijection means no collision.
         let mut counter = HashMap::new();
