@@ -94,6 +94,6 @@ jobs:
           components: llvm-tools-preview
       - uses: Swatinem/rust-cache@eedcf2fb1c22f010a0eb66b92f378c110977f266 # v2
       - run: |
-          cargo install cargo-llvm-cov --version 0.8.5 --locked || true
+          cargo install cargo-llvm-cov --version 0.9.1 --locked || true
           cargo llvm-cov clean --workspace
           cargo llvm-cov --lcov --output-path coverage.lcov
