@@ -18,6 +18,36 @@
 //!
 //! See also: [`crate::bitline`] for bit-manipulation predicates over the same integer types.
 
+/// An 8×8 bit matrix with explicit big-endian byte-row representation.
+///
+/// Construct a matrix from its rows with [`BitMatrix8x8::from_rows`]. Row 0 is
+/// the first byte of the supplied array, and the most-significant bit of each
+/// row is column 0. This type prevents that representation from being confused
+/// with an ordinary `u64`.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(transparent)]
+pub struct BitMatrix8x8(u64);
+
+impl BitMatrix8x8 {
+    /// Creates a matrix from eight rows in row order.
+    #[inline]
+    pub fn from_rows(rows: [u8; 8]) -> Self {
+        Self(u64::from_be_bytes(rows))
+    }
+
+    /// Returns the matrix rows in row order.
+    #[inline]
+    pub fn into_rows(self) -> [u8; 8] {
+        self.0.to_be_bytes()
+    }
+
+    /// Transposes the matrix without changing its row and column convention.
+    #[inline]
+    pub fn transpose(self) -> Self {
+        Self(transpose8x8_packed(self.0))
+    }
+}
+
 /// Transpose an 8×8 bit matrix packed into a single `u64`.
 ///
 /// The matrix is packed in big-endian byte order: the most-significant byte is row 0,
@@ -26,8 +56,20 @@
 /// This is equivalent to [`transpose8x8`] but avoids the overhead of converting to and
 /// from a `[u8; 8]` array. The two functions operate on the same logical bit matrix;
 /// to convert between representations use `u64::from_be_bytes` / `u64::to_be_bytes`.
+///
+/// Prefer [`BitMatrix8x8`] so the packed value's matrix meaning is represented in the
+/// type system.
+#[deprecated(
+    since = "0.3.1",
+    note = "use BitMatrix8x8::from_rows(...).transpose().into_rows() to preserve the matrix representation"
+)]
 #[inline]
 pub fn transpose8x8_u64(n: u64) -> u64 {
+    transpose8x8_packed(n)
+}
+
+#[inline]
+fn transpose8x8_packed(n: u64) -> u64 {
     let m = (n ^ (n >> 7)) & 0x00aa00aa00aa00aa;
     let n = n ^ m ^ (m << 7);
     let m = (n ^ (n >> 14)) & 0x0000cccc0000cccc;
@@ -165,7 +207,7 @@ mod tests {
     #[test]
     fn test_transpose8x8_u64() {
         assert_eq!(
-            transpose8x8_u64(0x123456789abcdef0_u64),
+            transpose8x8_packed(0x123456789abcdef0_u64),
             0x0f3355ff1e66aa00_u64
         );
     }
